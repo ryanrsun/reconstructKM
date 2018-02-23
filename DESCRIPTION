@@ -1,0 +1,26 @@
+Package: reconstructKM
+Type: Package
+Title: Reconstruct individual-level data from KM plots published in academic journals
+Version: 0.1.0
+Author: Ryan Sun
+Maintainer: Ryan Sun <ryansun.work@gmail.com>
+Description: Functions for reconstructing individual-level data (time, status, arm) from KM curves. Also find parametric RMST by fitting Weibull distribution to survival data.
+Encoding: UTF-8
+LazyData: true
+Depends: R (>= 2.10)
+Imports:
+    mvtnorm,
+    SKAT,
+    stats,
+    dplyr,
+    magrittr,
+    survival,
+    survminer,
+	surv2sampleComp,
+License: GPL-3
+RoxygenNote: 5.0.1
+Suggests: knitr,
+    rmarkdown,
+    testthat
+VignetteBuilder: knitr
+

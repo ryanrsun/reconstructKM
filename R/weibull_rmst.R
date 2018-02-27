@@ -19,7 +19,7 @@ weimle1 <- function(time, status){
     #--- minuslog likelihood function ---#
     ll<-function(a, b) {
         -sum(status*( log(exp(a)) + (exp(a)-1)*log(time) - exp(a)*log(exp(b)) ) -(time/exp(b))^exp(a))}
-    est<-mle(minuslog=ll, start=list(a=0, b=0))
+    est<-stats4::mle(minuslog=ll, start=list(a=0, b=0))
     shape<-as.numeric(exp(attributes(est)$coef[1]))
     scale<-as.numeric(exp(attributes(est)$coef[2]))
     return(list(out=est, shape=shape, scale=scale))

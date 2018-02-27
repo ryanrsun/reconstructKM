@@ -21,8 +21,8 @@ format_raw_tabs <- function(raw_NAR, raw_surv, tau=NULL) {
     if (has_col != 2) { stop('raw_surv must have columns named time and survival exactly') }
 
     # subset and order clicks
-    raw_surv <- select(raw_surv, time, survival) %>%
-        arrange(time)
+    raw_surv <- dplyr::select(raw_surv, time, survival) %>%
+        dplyr::arrange(time)
 
     # make sure survival is non-increasing, starts with (0,1), ends with an event
     if (is.unsorted(rev(raw_surv$survival))) {
@@ -43,8 +43,8 @@ format_raw_tabs <- function(raw_NAR, raw_surv, tau=NULL) {
     if (has_col != 2) { stop('raw_NAR must have columns named time and NAR exactly') }
 
     # subset and order NAR
-    raw_NAR <- select(raw_NAR, time, NAR) %>%
-        arrange(time)
+    raw_NAR <- dplyr::select(raw_NAR, time, NAR) %>%
+        dplyr::arrange(time)
 
     # make sure NAR is non-increasing
     if (is.unsorted(rev(raw_NAR$NAR))) {
@@ -67,8 +67,8 @@ format_raw_tabs <- function(raw_NAR, raw_surv, tau=NULL) {
     }
 
     # augment NAR, remove NA rows
-    aug_NAR <- bind_cols(raw_NAR[-nrow(raw_NAR), ], ints) %>%
-        filter(!is.na(lower))
+    aug_NAR <- dplyr::bind_cols(raw_NAR[-nrow(raw_NAR), ], ints) %>%
+        dplyr::filter(!is.na(lower))
 
     # manually add last row to NAR and clicks tables
     last_NAR_row <- data.frame(time=max(raw_NAR$time),
@@ -76,8 +76,8 @@ format_raw_tabs <- function(raw_NAR, raw_surv, tau=NULL) {
                            upper=aug_NAR$upper[nrow(aug_NAR)]+1)
     last_surv_row <- data.frame(time=tau, survival=last_surv)
 
-    aug_NAR <- bind_rows(aug_NAR, last_NAR_row)
-    aug_surv <- bind_rows(raw_surv, last_surv_row)
+    aug_NAR <- dplyr::bind_rows(aug_NAR, last_NAR_row)
+    aug_surv <- dplyr::bind_rows(raw_surv, last_surv_row)
 
     return(list(aug_NAR=aug_NAR, aug_surv=aug_surv))
 

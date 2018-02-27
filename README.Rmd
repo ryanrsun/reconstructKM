@@ -4,7 +4,7 @@ output: github_document
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-```{r, echo = FALSE}
+```{r setup, include=FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
@@ -20,7 +20,7 @@ Most clinical trials with time-to-event data (e.g. testing survival times under 
 
 The method is explained in more detail in the vignette and requires you to (1) use digitizer software (e.g. DigitizeIt) to 'point and click' at the event times in the KM plots and (2) manually input number at risk information.  Assuming you have done this and saved the data, just input the data into the package as demonstrated below:
 
-```{r, echo = FALSE}
+```{r, eval=TRUE, results='show', cache=TRUE, warning=FALSE}
 data("TTfields_pfs_pbo_clicks")
 data("TTfields_pfs_trt_clicks")
 data("TTfields_pfs_pbo_NAR")
@@ -42,7 +42,7 @@ TTfields_trt_recon <- KM_reconstruct(aug_NAR=TTfields_trt_aug$aug_NAR, aug_surv=
 
 Now you have the reconstructed dataset and can check its veracity, for example by reconstructing the KM plots.
 
-```{r, echo = FALSE}
+```{r, eval=TRUE, results='show', cache=TRUE, warning=FALSE}
 
 # display
 TTfields_pbo_IPD <- data.frame(arm=0, time=TTfields_pbo_recon$IPD_time, status=TTfields_pbo_recon$IPD_event)

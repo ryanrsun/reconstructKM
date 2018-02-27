@@ -1,35 +1,17 @@
----
-output: github_document
----
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
+What can reconstructKM do?
+==========================
 
-```{r setup, echo=FALSE, include=FALSE}
-library(reconstructKM)
-library(survival)
-library(survminer)
-knitr::opts_chunk$set(
-  collapse = TRUE,
-  comment = "#>",
-  fig.path = "man/figures/README-",
-  knitr::opts_chunk$set(fig.width=9, fig.height=6.5)
-)
-```
-
-# What can reconstructKM do?
-
-Oftentimes it is of interest to medical clinicians or statisticians to further investigate or reanalyze data from a clinical trial.  For instance, the clinician may want to reinterpret the risks/benefits using different measures (e.g. median survival time or restricted mean survival time instead of the hazard ratio), or the statistician may be interested in using the data for methodological development. 
+Oftentimes it is of interest to medical clinicians or statisticians to further investigate or reanalyze data from a clinical trial. For instance, the clinician may want to reinterpret the risks/benefits using different measures (e.g. median survival time or restricted mean survival time instead of the hazard ratio), or the statistician may be interested in using the data for methodological development.
 
 Most clinical trials with time-to-event data (e.g. testing survival times under two different treatments) published in medical journals (JAMA, Journal of Clinical Oncology, etc.) will present Kaplan-Meier curves depicting the survival under multiple treatment arms. reconstructKM allows the researcher to reconstruct the patient-level data (survival time, censoring status, and treatment arm for each individual in the study), using just the figure from the journal (Guyot et al, Biomedical Research Methodology 2012).
 
 <img src="man/figures/TTFields_pfs_orig.png" align="right" />
 
-\newline 
-\newline 
+The method is explained in more detail in the vignette and requires you to (1) use digitizer software (e.g. DigitizeIt) to 'point and click' at the event times in the KM plots and (2) manually input number at risk information. Assuming you have done this and saved the data, just input the data into the package as demonstrated below:
 
-The method is explained in more detail in the vignette and requires you to (1) use digitizer software (e.g. DigitizeIt) to 'point and click' at the event times in the KM plots and (2) manually input number at risk information.  Assuming you have done this and saved the data, just input the data into the package as demonstrated below:
-
-```{r reconstruct example, eval=TRUE, results='show', warning=FALSE}
+``` r
 data("TTfields_pfs_pbo_clicks")
 data("TTfields_pfs_trt_clicks")
 data("TTfields_pfs_pbo_NAR")
@@ -44,18 +26,24 @@ TTfields_trt_aug <- format_raw_tabs(raw_NAR=TTfields_pfs_trt_NAR,
 # reconstruct
 TTfields_pbo_recon <- KM_reconstruct(aug_NAR=TTfields_pbo_aug$aug_NAR, aug_surv=TTfields_pbo_aug$aug_surv)
 TTfields_trt_recon <- KM_reconstruct(aug_NAR=TTfields_trt_aug$aug_NAR, aug_surv=TTfields_trt_aug$aug_surv)
-
 ```
 
 Now you have the reconstructed dataset and can check its veracity, for example by reconstructing the KM plots.
 
-```{r plot example, eval=TRUE, results='show', warning=FALSE}
+``` r
 
 # put the treatment and control arms into one dataset
 TTfields_pbo_IPD <- data.frame(arm=0, time=TTfields_pbo_recon$IPD_time, status=TTfields_pbo_recon$IPD_event)
 TTfields_trt_IPD <- data.frame(arm=1, time=TTfields_trt_recon$IPD_time, status=TTfields_trt_recon$IPD_event)
 TTfields_IPD <- rbind(TTfields_pbo_IPD, TTfields_trt_IPD)
 head(TTfields_IPD)
+#>   arm      time status
+#> 1   0 0.5948427      1
+#> 2   0 0.8578437      1
+#> 3   0 0.9400316      1
+#> 4   0 0.9400316      1
+#> 5   0 0.9975630      1
+#> 6   0 1.0304382      1
 
 # plot
 TTfields_KM_fit <- survival::survfit(Surv(time, status) ~ arm, data=TTfields_IPD)
@@ -72,3 +60,5 @@ TTfields_KM <- ggsurvplot(TTfields_KM_fit, data = TTfields_IPD, risk.table = TRU
                                           font.x=22, font.tickslab=16))
 TTfields_KM        
 ```
+
+![](man/figures/README-plot%20example-1.png)

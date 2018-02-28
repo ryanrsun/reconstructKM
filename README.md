@@ -7,9 +7,17 @@ Oftentimes it is of interest to medical clinicians or statisticians to further i
 
 Most clinical trials with time-to-event data (e.g. testing survival times under two different treatments) published in medical journals (JAMA, Journal of Clinical Oncology, etc.) will present Kaplan-Meier curves depicting the survival under multiple treatment arms. reconstructKM allows the researcher to reconstruct the patient-level data (survival time, censoring status, and treatment arm for each individual in the study), using just the figure from the journal (Guyot et al, Biomedical Research Methodology 2012).
 
-<img src="man/figures/TTFields_pfs_orig.png" align="right" />
+<img src="man/figures/TTFields_pfs_orig.png" align="center" />
 
-The method is explained in more detail in the vignette and requires you to (1) use digitizer software (e.g. DigitizeIt) to 'point and click' at the event times in the KM plots and (2) manually input number at risk information. Assuming you have done this and saved the data, just input the data into the package as demonstrated below:
+The method is explained in more detail in the vignette and requires you to (1) use digitizer software (e.g. DigitizeIt) to click the location of event times in the KM plots and (2) manually input number at risk information. Your first click should be at the (0,1) coordinate, and all other clicks should come at the leftmost point of each horizontal line segment. See below for examples of first.
+
+<img src="man/figures/TTFields_first_click.png" align="center" />
+
+and last clicks:
+
+<img src="man/figures/TTFields_last_click.png" align="center" />
+
+The full click data and number at risk tables can be loaded as shown below. Note how the number at risk tables match those given in the original figure. Your inputs should also look like this. Also note that my original click did not land exactly at (0,1), but it has been manually fixed in the data below. You should also make sure to perform this step and perform other common sense checks (e.g. make sure your x-axis clicks are increasing and your y-axis clicks are decreasing).
 
 ``` r
 data("TTfields_pfs_pbo_clicks")

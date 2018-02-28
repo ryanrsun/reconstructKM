@@ -54,8 +54,8 @@ head(TTfields_IPD)
 #> 6   0 1.0304382      1
 
 # plot
-TTfields_KM_fit <- survival::survfit(Surv(time, status) ~ arm, data=TTfields_IPD)
-TTfields_KM <- ggsurvplot(TTfields_KM_fit, data = TTfields_IPD, risk.table = TRUE, 
+TTfields_KM_fit <- survival::survfit(survival::Surv(time, status) ~ arm, data=TTfields_IPD)
+TTfields_KM <- survminer::ggsurvplot(TTfields_KM_fit, data = TTfields_IPD, risk.table = TRUE, 
                         palette=c('blue2', 'orange2'),
            legend=c(0.86,0.9), legend.title='',legend.labs=c('Control', 'RHT'),
            title='TTFields',
@@ -64,7 +64,7 @@ TTfields_KM <- ggsurvplot(TTfields_KM_fit, data = TTfields_IPD, risk.table = TRU
            tables.y.text.col=FALSE, risk.table.title='Number at Risk', break.time.by=6,
            censor=TRUE, font.x=22, font.y=18, font.tickslab=16, font.legend=22, 
            font.subtitle=20, font.caption=20, risk.table.fontsize=7,
-           tables.theme = theme_survminer(font.main = 22, font.y=22,
+           tables.theme = survminer::theme_survminer(font.main = 22, font.y=22,
                                           font.x=22, font.tickslab=16))
 TTfields_KM        
 ```

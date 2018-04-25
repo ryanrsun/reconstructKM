@@ -66,10 +66,10 @@ weibull_rmst <- function(num_boots=500, dat, tau, alpha, seed=NULL) {
     # make one dataset for each arm
     trt_dat <- dat[which(dat$arm == 1), ]
     pbo_dat <- dat[which(dat$arm == 0), ]
-    boot_trt <- rep(NA, num_boots)
-    boot_pbo <- rep(NA, num_boots)
-    boot_diff <- rep(NA, num_boots)
 
+    boot_df <- data.frame(rmst_trt=rep(NA, num_boots), rmst_pbo=NA,
+                          rmst_diff=NA, mean_trt=NA, mean_pbo=NA,
+                          mean_diff=NA)
     # resample
     for (i in 1:num_boots) {
         trt_samp <- dplyr::sample_n(trt_dat, nrow(trt_dat), replace=TRUE)
@@ -80,37 +80,55 @@ weibull_rmst <- function(num_boots=500, dat, tau, alpha, seed=NULL) {
         temp_pbo_est <-  weimle1(time=pbo_samp$time, status=pbo_samp$status)
 
         # calculate AUC
-        boot_trt[i] <- integrate(f=weib_surv, shape=temp_trt_est$shape,
+        boot_df$rmst_trt[i] <- integrate(f=weib_surv, shape=temp_trt_est$shape,
                                  scale=temp_trt_est$scale, lower=0, upper=tau)$value
-        boot_pbo[i] <- integrate(f=weib_surv, shape=temp_pbo_est$shape,
+        boot_df$rmst_pbo[i] <- integrate(f=weib_surv, shape=temp_pbo_est$shape,
                                  scale=temp_pbo_est$scale, lower=0, upper=tau)$value
-        boot_diff[i] <- boot_trt[i] - boot_pbo[i]
+        boot_df$rmst_diff[i] <- boot_df$rmst_trt[i] - boot_df$rmst_pbo[i]
+
+        # bootstrapped means
+        boot_df$mean_trt[i] <- temp_trt_est$scale * gamma(1 + 1/temp_trt_est$shape)
+        boot_df$mean_pbo[i] <-  temp_pbo_est$scale * gamma(1 + 1/temp_pbo_est$shape)
+        boot_df$mean_diff[i] <- boot_df$mean_trt[i] - boot_df$mean_pbo[i]
     }
 
     # fit weibull and calculate auc for unperturbed data
-    trt_est <- weimle1(time=trt_dat$time, status=trt_dat$status)
-    pbo_est <- weimle1(time=pbo_dat$time, status=pbo_dat$status)
-    trt_rmst <- integrate(f=weib_surv, shape=trt_est$shape, scale=trt_est$scale, lower=0, upper=tau)$value
-    pbo_rmst <- integrate(f=weib_surv, shape=pbo_est$shape, scale=pbo_est$scale, lower=0, upper=tau)$value
-    diff_rmst <- trt_rmst - pbo_rmst
+    weib_trt_params <- weimle1(time=trt_dat$time, status=trt_dat$status)
+    weib_pbo_params <- weimle1(time=pbo_dat$time, status=pbo_dat$status)
+    rmst_trt <- integrate(f=weib_surv, shape=weib_trt_params$shape, scale=weib_trt_params$scale, lower=0, upper=tau)$value
+    rmst_pbo <- integrate(f=weib_surv, shape=weib_pbo_params$shape, scale=weib_pbo_params$scale, lower=0, upper=tau)$value
+    rmst_diff <- rmst_trt - rmst_pbo
 
-    # also find weibull mean time-to-event
-    trt_time_event_mean <- trt_est$scale * gamma(1 + 1/trt_est$shape)
-    pbo_time_event_mean <- pbo_est$scale * gamma(1 + 1/pbo_est$shape)
+    # find CI for RMST
+    rmst_trt_CI <- quantile(boot_df$rmst_trt, probs=c(alpha/2, 1-alpha/2))
+    rmst_pbo_CI <- quantile(boot_df$rmst_pbo, probs=c(alpha/2, 1-alpha/2))
+    rmst_diff_CI <- quantile(boot_df$rmst_diff, probs=c(alpha/2, 1-alpha/2))
 
-    # find CI
-    trt_CI <- quantile(boot_trt, probs=c(alpha/2, 1-alpha/2))
-    pbo_CI <- quantile(boot_pbo, probs=c(alpha/2, 1-alpha/2))
-    diff_CI <- quantile(boot_diff, probs=c(alpha/2, 1-alpha/2))
+    # format RMST output into df
+    rmst_df <- data.frame( cbind(c(rmst_trt, rmst_pbo, rmst_diff),
+                                 rbind(rmst_trt_CI, rmst_pbo_CI, rmst_diff_CI)) )
+    colnames(rmst_df) <- c('Est', alpha/2, 1-alpha/2)
+    rownames(rmst_df) <- c('Arm1', 'Arm0', 'Arm1-Arm0')
 
-    # format output into df
-    out_df <- data.frame( cbind(c(trt_rmst, pbo_rmst, diff_rmst),
-                                rbind(trt_CI, pbo_CI, diff_CI)) )
-    colnames(out_df) <- c('Est', alpha/2, 1-alpha/2)
-    rownames(out_df) <- c('Arm1', 'Arm0', 'Arm1-Arm0')
-    return( list(tab=out_df, trt_rmst=trt_rmst, pbo_rmst=pbo_rmst, diff_rmst=diff_rmst,
-                 trt_CI=trt_CI, pbo_CI=pbo_CI, diff_CI=diff_CI,
-                 trt_time_event_mean=trt_time_event_mean, pbo_time_event_mean=pbo_time_event_mean,
-                 trt_param=list(shape=trt_est$shape, scale=trt_est$scale),
-                 pbo_param=list(shape=pbo_est$shape, scale=pbo_est$scale)) )
+    # find weibull mean time-to-event
+    mean_trt <- weib_trt_params$scale * gamma(1 + 1/weib_trt_params$shape)
+    mean_pbo <- weib_pbo_params$scale * gamma(1 + 1/weib_pbo_params$shape)
+    mean_diff <- mean_trt - mean_pbo
+
+    # find CI for mean
+    mean_trt_CI <- quantile(boot_df$mean_trt, probs=c(alpha/2, 1-alpha/2))
+    mean_pbo_CI <- quantile(boot_df$mean_pbo, probs=c(alpha/2, 1-alpha/2))
+    mean_diff_CI <- quantile(boot_df$mean_diff, probs=c(alpha/2, 1-alpha/2))
+
+    # format mean output into df
+    mean_df <- data.frame( cbind(c(mean_trt, mean_pbo, mean_diff),
+                                rbind(mean_trt_CI, mean_pbo_CI, mean_diff_CI)) )
+    colnames(mean_df) <- c('Est', alpha/2, 1-alpha/2)
+    rownames(mean_df) <- c('Arm1', 'Arm0', 'Arm1-Arm0')
+
+    return( list(rmst_df=rmst_df, mean_df=mean_df, rmst_trt=rmst_trt, rmst_pbo=rmst_pbo, rmst_diff=rmst_diff,
+                 rmst_trt_CI=rmst_trt_CI, rmst_pbo_CI=rmst_pbo_CI, rmst_diff_CI=rmst_diff_CI,
+                 mean_trt=mean_trt, mean_pbo=mean_pbo,
+                 trt_param=list(shape=weib_trt_params$shape, scale=weib_trt_params$scale),
+                 pbo_param=list(shape=weib_pbo_params$shape, scale=weib_pbo_params$scale)) )
 }

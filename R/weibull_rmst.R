@@ -50,7 +50,7 @@ weimle1 <- function(time, status){
 #' dat <- data.frame(time=time, status=status, arm=arm)
 #' weibull_rmst(dat=dat, tau=1, alpha=0.05)
 #'
-weibull_rmst <- function(num_boots=500, dat, tau, alpha, seed=NULL) {
+weibull_rmst <- function(num_boots=1000, dat, tau, alpha, find_pval=FALSE, seed=NULL) {
     if(is.numeric(seed)) {set.seed(seed)}
 
     # survival function of weibull, to be integrated from 0 to \tau
@@ -126,7 +126,47 @@ weibull_rmst <- function(num_boots=500, dat, tau, alpha, seed=NULL) {
     colnames(mean_df) <- c('Est', alpha/2, 1-alpha/2)
     rownames(mean_df) <- c('Arm1', 'Arm0', 'Arm1-Arm0')
 
-    return( list(rmst_df=rmst_df, mean_df=mean_df, rmst_trt=rmst_trt, rmst_pbo=rmst_pbo, rmst_diff=rmst_diff,
+    # only if we want p-values
+    if (find_pval) {
+        null_boot_df <- data.frame(rmst_trt=rep(NA, num_boots), rmst_pbo=NA,
+                              rmst_diff=NA, mean_trt=NA, mean_pbo=NA,
+                              mean_diff=NA)
+        # resample under null for pvalue
+        for (i in 1:num_boots) {
+            temp_trt_assign <- sample(x=1:nrow(dat), size=nrow(trt_dat), replace=FALSE)
+            trt_samp <- dat[temp_trt_assign, ] %>%
+                mutate(arm = 1)
+            pbo_samp <- dat[-temp_trt_assign, ] %>%
+                mutate(arm = 0)
+
+            # fit weibull parameters
+            temp_trt_est <- weimle1(time=trt_samp$time, status=trt_samp$status)
+            temp_pbo_est <-  weimle1(time=pbo_samp$time, status=pbo_samp$status)
+
+            # calculate AUC
+            null_boot_df$rmst_trt[i] <- integrate(f=weib_surv, shape=temp_trt_est$shape,
+                                             scale=temp_trt_est$scale, lower=0, upper=tau)$value
+            null_boot_df$rmst_pbo[i] <- integrate(f=weib_surv, shape=temp_pbo_est$shape,
+                                             scale=temp_pbo_est$scale, lower=0, upper=tau)$value
+            null_boot_df$rmst_diff[i] <- null_boot_df$rmst_trt[i] - null_boot_df$rmst_pbo[i]
+
+            # bootstrapped means
+            null_boot_df$mean_trt[i] <- temp_trt_est$scale * gamma(1 + 1/temp_trt_est$shape)
+            null_boot_df$mean_pbo[i] <-  temp_pbo_est$scale * gamma(1 + 1/temp_pbo_est$shape)
+            null_boot_df$mean_diff[i] <- null_boot_df$mean_trt[i] - null_boot_df$mean_pbo[i]
+        }
+        pval_df <- data.frame(rmst_diff_pside = length(which(null_boot_df$rmst_diff > rmst_diff)) / num_boots,
+                              rmst_diff_nside = length(which(null_boot_df$rmst_diff < rmst_diff)) / num_boots,
+                              rmst_diff_2side = length(which(abs(null_boot_df$rmst_diff) > abs(rmst_diff))) / num_boots,
+                              mean_diff_pside = length(which(null_boot_df$mean_diff > mean_diff)) / num_boots,
+                              mean_diff_nside = length(which(null_boot_df$mean_diff < mean_diff)) / num_boots,
+                              mean_diff_2side = length(which(abs(null_boot_df$mean_diff) > abs(mean_diff))) / num_boots)
+    } else {
+        pval_df <- NULL
+    }
+
+    return( list(rmst_df=rmst_df, mean_df=mean_df, pval_df=pval_df, rmst_trt=rmst_trt, rmst_pbo=rmst_pbo,
+                 rmst_diff=rmst_diff,
                  rmst_trt_CI=rmst_trt_CI, rmst_pbo_CI=rmst_pbo_CI, rmst_diff_CI=rmst_diff_CI,
                  mean_trt=mean_trt, mean_pbo=mean_pbo,
                  trt_param=list(shape=weib_trt_params$shape, scale=weib_trt_params$scale),

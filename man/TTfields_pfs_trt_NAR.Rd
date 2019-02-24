@@ -20,4 +20,3 @@ TTfields_pfs_trt_NAR
 A dataset containing the number at risk information for treatment KMC in Fig 2A
 }
 \keyword{datasets}
-

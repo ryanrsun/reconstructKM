@@ -2,7 +2,8 @@
 
 export(KM_reconstruct)
 export(format_raw_tabs)
+export(integrate_survdat)
+export(nonparam_rmst)
 export(print_cox_outputs)
 export(weibull_rmst)
 export(weimle1)
-importFrom(magrittr,"%>%")

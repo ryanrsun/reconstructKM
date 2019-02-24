@@ -25,4 +25,3 @@ status <- rbinom(n=100, size=0.5)
 weimle1(time=time, status=status)
 
 }
-

@@ -18,9 +18,8 @@ Imports:
     survminer,
 	surv2sampleComp,
 License: GPL-3
-RoxygenNote: 5.0.1
+RoxygenNote: 6.1.1
 Suggests: knitr,
     rmarkdown,
     testthat
 VignetteBuilder: knitr
-

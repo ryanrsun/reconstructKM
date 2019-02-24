@@ -24,4 +24,3 @@ temp_cox <- coxph(Surv(time, status) ~ arm)
 print_cox_outputs(temp_cox)
 
 }
-

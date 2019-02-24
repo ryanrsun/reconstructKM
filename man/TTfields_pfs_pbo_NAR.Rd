@@ -20,4 +20,3 @@ TTfields_pfs_pbo_NAR
 A dataset containing the number at risk information for placebo KMC in Fig 2A
 }
 \keyword{datasets}
-

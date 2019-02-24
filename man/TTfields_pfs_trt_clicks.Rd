@@ -19,4 +19,3 @@ TTfields_pfs_trt_clicks
 A dataset containing the clicks used to reconstruct the treatment KMC in Fig 2A
 }
 \keyword{datasets}
-

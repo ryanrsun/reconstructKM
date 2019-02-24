@@ -27,4 +27,3 @@ data(TTfields_pfs_trt_clicks)
 augmented_NAR <- format_NAR_tab(rawNAR=TTfields_pfs_trt_NAR, rawSurv=TTfields_pfs_trt_clicks)
 
 }
-

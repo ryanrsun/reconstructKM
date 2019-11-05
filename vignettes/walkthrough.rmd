@@ -57,13 +57,14 @@ true_IPD <- data.frame(arm = factor(sample(1:2,n,replace=TRUE),
 # Visualize
 Now let's visualize the data. Use the cmprsk package to plot the cumulative incidence functions of the two events in the two groups. Then plot the standard Kaplan-Meier curve of PFS, where death and progression are combined into a composite event:
 
-```{r visualize, echo = FALSE}
+```{r visualize, echo = FALSE, fig.width=7, fig.height=5}
 # no strata (i.e. covariates like sex) variable
 xx <- cmprsk::cuminc(ftime = true_IPD$obs_time, fstatus = true_IPD$type,
                      group = true_IPD$arm)
 
 # plot cumulative incidence curves
 plot(xx,lty=c(1,1,2,2),color=c(1,2,1,2), xlim=c(0, 10))
+cat('\n')
 
 # plot KM
 KM_fit <- survfit(Surv(obs_time, status) ~ arm, data=true_IPD)
@@ -80,7 +81,7 @@ KM_plot <- ggsurvplot(KM_fit, data = true_IPD, risk.table = TRUE,
 KM_plot
 ```
 
-```{r csv to rda, eval=FALSE}
+```{r csv to rda, echo=FALSE, eval=FALSE}
 # read in the CSVs provided by digitizeIt and save them as rda
 km_trt_clicks <- read.csv('km_trt_data.csv') %>%
     as.data.frame(.) %>%
@@ -128,15 +129,14 @@ save(pbo_NAR, file="pbo_NAR.rda")
 
 Now we will use only these two plots to recreate the individual-level data.
 We have to use a digitizer software to record the "jumps" in each curve.
-For example, 
-<img src="man/figures/TTFields_first_click.png" align="center" />
 
-and last clicks:
+For example:
 
-<img src="man/figures/TTFields_last_click.png" align="center" />
+![Image Title](figures/cic_trt1_clicks.png){width=500px}
 
-The full click data and number at risk tables can be loaded as shown below.
-Now let's visualize the data. Use the cmprsk package to plot the cumulative incidence functions of the two events in the two groups. Then plot the standard Kaplan-Meier curve of PFS, where death and progression are combined into a composite event:
+![Image Title](figures/km_trt_clicks.png){width=500px}
+
+The full click data and number at risk tables can be loaded as shown below, so you don't actually have to do the clicking yourself. We can then use the package functions to reconstruct the PFS data (without splitting by event type initially).
 
 ```{r reconstruct, eval=TRUE, results='show', warning=FALSE}
 data("km_trt_clicks")
@@ -158,13 +158,12 @@ pbo_recon <- KM_reconstruct(aug_NAR=pbo_aug$aug_NAR, aug_surv=pbo_aug$aug_surv)
 
 Now you have the reconstructed dataset and can check its veracity, for example by reconstructing the KM plots.
 
-```{r reconstruct KM, eval=TRUE, results='show', warning=FALSE}
+```{r reconstruct KM, eval=TRUE, results='show', fig.width=7, fig.height=5, warning=FALSE}
 
 # put the treatment and control arms into one dataset
 trt_IPD <- data.frame(arm=1, time=trt_recon$IPD_time, status=trt_recon$IPD_event)
 pbo_IPD <- data.frame(arm=0, time=pbo_recon$IPD_time, status=pbo_recon$IPD_event)
 recon_IPD <- rbind(trt_IPD, pbo_IPD)
-head(recon_IPD)
 
 # plot
 recon_KM_fit <- survival::survfit(survival::Surv(time, status) ~ arm, data=recon_IPD)
@@ -183,9 +182,9 @@ recon_KM
 ```
 
 
-And here we can reconstruct and plot the reconstructed cumulative incidence curves:
+And then we can reconstruct and plot the reconstructed cumulative incidence curves using the cmprsk package:
 
-```{r reconstruct CIC, eval=TRUE, results='show', warning=FALSE}
+```{r reconstruct CIC, eval=TRUE, results='show', fig.width=7, fig.height=5, warning=FALSE}
 # load cic data
 data("cic_trt1_clicks")
 data("cic_trt2_clicks")

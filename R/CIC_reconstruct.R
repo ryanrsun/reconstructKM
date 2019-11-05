@@ -45,13 +45,15 @@ CIC_reconstruct <- function(IPD, clicks1, clicks2=NULL) {
     # we'd like to have at least five data points in each split
     nsplits <- max(round(ntimes_km / 7), 5)
     seg_length <- ceiling(ntimes_km / nsplits)
+    # split it a little bit weird to get even intervals
     remainder <- ntimes_km - seg_length * (nsplits - 2)
     km_dat_split <- km_dat %>%
         mutate(split = c(rep(1:(nsplits-2), each=ceiling(ntimes_km / nsplits)),
                          rep((nsplits-1), ceiling(remainder/2)),
                          rep(nsplits, floor(remainder/2))) )
 
-    # time split endpoints
+    # put the split points in the middle of times bookending the splits
+    # in the km_dat
     min_times <- km_dat_split %>% group_by(split) %>%
         summarise(min_time = min(time)) %>% select(min_time) %>% unlist(.) %>% as.numeric(.)
     max_times <- km_dat_split %>% group_by(split) %>%
@@ -222,7 +224,7 @@ match_clicks <- function(km_dat, clicks_dat, prev_cuminc=0) {
 
         temp_km_idx <- 1
         for (time_it in 1:temp_clicks_rows) {
-            # generally number of clicks left is more
+            # generally number of clicks left is more if you're in the too many clicks situation
             temp_km_left <- temp_km_rows - temp_km_idx + 1
             temp_clicks_left <- temp_clicks_rows - time_it + 1
 

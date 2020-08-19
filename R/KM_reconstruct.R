@@ -12,7 +12,7 @@
 #' @examples
 #' data(TTfields_pfs_trt_NAR)
 #' data(TTfields_pfs_trt_clicks)
-#' augmented_NAR <- format_NAR_tab(rawNAR=TTfields_pfs_trt_NAR, rawSurv=TTfields_pfs_trt_clicks)
+#' augmented_NAR <- format_raw_tabs(rawNAR=TTfields_pfs_trt_NAR, rawSurv=TTfields_pfs_trt_clicks)
 #' KM_reconstruct(aug_NAR=augmented_NAR$aug_NAR, aug_surv=augmented_NAR$aug_surv)
 #'
 KM_reconstruct <- function(aug_NAR, aug_surv) {

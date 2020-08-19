@@ -8,8 +8,8 @@
 #' that has already been processed through reconstructKM. Should have three columns: time, 
 #' status, and arm.
 #' @param clicks1 A data.frame with "time" and "cuminc" columns that are output from the
-#' digitizing software, similar to what you would use for reconstructKM except it's a 
-#' cumulative incidence function, not a survival function (make sure first click is (0,0)).
+#' digitizing software, similar to what you would input for reconstructKM except it's a 
+#' cumulative incidence function for a specific event, not a survival function (make sure first click is (0,0)).
 #' @param arm The arm corresponding to clicks1 and possibly clicks2.
 #' @param clicks2 Same as clicks1 but for the second event. Default is null.
 #'
@@ -21,10 +21,10 @@
 #' @examples
 #' data(TTfields_pfs_trt_NAR)
 #' data(TTfields_pfs_trt_clicks)
-#' augmented_NAR <- format_NAR_tab(rawNAR=TTfields_pfs_trt_NAR, rawSurv=TTfields_pfs_trt_clicks)
+#' augmented_NAR <- format_raw_tabs(raw_NAR=TTfields_pfs_trt_NAR, raw_surv=TTfields_pfs_trt_clicks)
 #' reconstruct <- KM_reconstruct(aug_NAR=augmented_NAR$aug_NAR, aug_surv=augmented_NAR$aug_surv)
 #' IPD <- data.frame(arm=1, time=reconstruct$IPD_time, status=reconstruct$IPD_event)
-#' CIC_reconstruct(overallIPD = IPD, clicks1 = TTfields_pfs_trt_clicks, arm=1, clicks2=NULL)
+#' CIC_reconstruct(overallIPD = IPD, clicks1 = TTfields_pfs_trt_clicks %>% mutate(cuminc=1-survival), arm=1, clicks2=NULL)
 CIC_reconstruct <- function(overallIPD, clicks1, arm, clicks2=NULL) {
 
   # make sure the time/survival is nonincreasing
@@ -84,7 +84,7 @@ CIC_reconstruct <- function(overallIPD, clicks1, arm, clicks2=NULL) {
 	    mutate(prevSurv = c(1, 1, surv[2:(nrow(.) - 1)])) %>%
 	    mutate(f1Hat = c(0, diff(cuminc))) %>%
 	    mutate(lambda1Hat = f1Hat / prevSurv) %>%
-	    mutate(d1Hat = lambda1Hat * atRisk) %>%
+	    mutate(d1Hat = round(lambda1Hat * atRisk)) %>%
 	    mutate(d1Hat = ifelse(d1Hat > events, events, d1Hat)) %>%
 	    mutate(d2Hat = events - d1Hat)    
   } else {

@@ -2,10 +2,11 @@
 
 export(CIC_reconstruct)
 export(KM_reconstruct)
+export(add_clicks)
 export(format_raw_tabs)
 export(integrate_survdat)
-export(match_clicks)
 export(nonparam_rmst)
 export(print_cox_outputs)
+export(remove_clicks)
 export(weibull_rmst)
 export(weimle1)

@@ -24,10 +24,10 @@ integrate_survdat <- function(dat, tau, alpha=0.05) {
     # disregard those after \tau, then add a row for \tau
     KMfit <- survival::survfit(Surv(time, status) ~ 1, data=dat)
     n <- nrow(dat)
-    nUnique <- length(KM_fit$time)
+    nUnique <- length(KMfit$time)
     KMtab <- data.frame(time = KMfit$time, surv = KMfit$surv, nRisk = KMfit$n.risk, nEvent = KMfit$n.event) %>%
         filter(time <= tau) %>%
-        add_row(time=tau, surv=KM_fit$surv[nUnique]) %>%
+        add_row(time=tau, surv=KMfit$surv[nUnique]) %>%
         # use lead() to add the "next time" column
         mutate(nextTime = lead(time)) %>%
         mutate(diffTime = nextTime - time) %>%

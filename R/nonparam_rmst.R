@@ -1,71 +1,60 @@
-#' Calculate nonparametric RMST for data.frame with time, status, arm
+#' Calculate nonparametric RMST for a single arm up to tau for data.frame with time and status
 
 #' @param dat Data frame of time-to-event data which MUST have the columns
-#' 'time', 'arm', and 'status
+#' 'time' and 'status
+#' @param tau The cutoff time, a scalar
+#' @param alpha Level for confidence interval
 #'
-#' @return list with rmst_pbo (arm=0) and rmst_trt (arm=1)
+#' @return data.frame with rows for RMST and RMTL and columnns for estimate, std err, pvalue, and CI
 #' @export
 #' @examples
 #' time <- rnorm(100)
 #' status <- rbinom(n=100, size=0.5)
-#' arm <- c( rep(1, 50), rep(0, 50))
-#' dat <- data.frame(time=time, status=status, arm=arm)
+#' dat <- data.frame(time=time, status=status, tau=2)
 #' integrate_survdat(dat=dat)
 #'
-integrate_survdat <- function(dat, tau) {
+integrate_survdat <- function(dat, tau, alpha=0.05) {
     #make sure data has necessary arms
-    if ( length(which(c('time', 'status', 'arm') %in% colnames(dat))) != 3) {
-        error('Column names must include time, status, arm')
+    if ( length(which(c('time', 'status') %in% colnames(dat))) != 2) {
+        error('Column names must include time and status exactly.')
     }
 
     # get the KM table using prebuilt functions
-    KM_fit <- survival::survfit(Surv(time, status) ~ arm, data=dat)
+    # it only tabulates the unique times
+    # disregard those after \tau, then add a row for \tau
+    KMfit <- survival::survfit(Surv(time, status) ~ 1, data=dat)
+    n <- nrow(dat)
+    nUnique <- length(KM_fit$time)
+    KMtab <- data.frame(time = KMfit$time, surv = KMfit$surv, nRisk = KMfit$n.risk, nEvent = KMfit$n.event) %>%
+        filter(time <= tau) %>%
+        add_row(time=tau, surv=KM_fit$surv[nUnique]) %>%
+        # use lead() to add the "next time" column
+        mutate(nextTime = lead(time)) %>%
+        mutate(diffTime = nextTime - time) %>%
+        # multiply the survival by the difference in times to get each auc chunk
+        mutate(aucChunk = diffTime * surv) %>%
+        # filter out the last NA row now that it's served its purpose
+        filter(!is.na(aucChunk)) %>%
+        # need this part for the variance calculation
+        mutate(cumAUC = cumsum(aucChunk)) %>%
+        mutate(cumAUC = cumAUC + time[1]) %>%
+        mutate(intervalAUC = cumAUC[nrow(.)] - cumAUC + aucChunk)
 
-    # make sure the arms are coded as 0/1 to get the correct KM table
-    num_zero <- KM_fit$strata[1]
-    num_one <- KM_fit$strata[2]
-    KM_pbo <- data.frame(time = KM_fit$time[1:num_zero],
-                         surv = KM_fit$surv[1:num_zero])
-    KM_trt <- data.frame(time = KM_fit$time[(num_zero+1):(num_zero+num_one)],
-                         surv = KM_fit$surv[(num_zero+1):(num_zero+num_one)])
+    # have to add the first chunk to the auc
+    aucTot <- KMtab$cumAUC[nrow(KMtab)]
 
-    # depending on \tau, we need to add or remove rows
-    if (tau %in% KM_trt$time) {
-        KM_trt <- KM_trt %>% filter(time <= tau)
-    } else if (tau > KM_trt$time[num_one]) {
-        KM_trt <- rbind(KM_trt, c(tau, KM_trt$surv[num_one]))
-    } else if (tau < KM_trt$time[num_one]) {
-        KM_trt <- KM_trt %>% filter(time < tau)
-        KM_trt <- rbind(KM_trt, c(tau, KM_trt$surv[nrow(KM_trt)]))
-    }
+    # variance estimate
+    multiplier <- ifelse(KMtab$nRisk - KMtab$nEvent == 0, 0, KMtab$nEven / (KMtab$nRisk * (KMtab$nRisk - KMtab$nEvent)))
+    varHat <- sum( KMtab$intervalAUC^2 * multiplier )
 
-    if (tau %in% KM_pbo$time) {
-        KM_pbo <- KM_pbo %>% filter(time <= tau)
-    } else if (tau > KM_pbo$time[num_zero]) {
-        KM_pbo <- rbind(KM_pbo, c(tau, KM_pbo$surv[num_zero]))
-    } else if (tau < KM_pbo$time[num_zero]) {
-        KM_pbo <- KM_pbo %>% filter(time < tau)
-        KM_pbo <- rbind(KM_pbo, c(tau, KM_pbo$surv[nrow(KM_pbo)]))
-    }
+    # return data.frame
+    returnDF <- data.frame(Stat = c("RMST", "RMTL"), Est = c(aucTot, tau - aucTot),
+                           se = c(sqrt(varHat), sqrt(varHat)),
+                           pval = c(1 - pchisq(aucTot^2 / varHat, df=1), 1 - pchisq((tau - aucTot)^2 / varHat, df=1)),
+                           CIlower = c(aucTot - qnorm(1 - alpha/2) * sqrt(varHat), tau - aucTot - qnorm(1 - alpha/2) * sqrt(varHat)),
+                           CIupper = c(aucTot + qnorm(1 - alpha/2) * sqrt(varHat), tau - aucTot + qnorm(1 - alpha/2) * sqrt(varHat)))
 
-    # sum intervals in dplyr
-    KM_pbo <- KM_pbo %>%
-        mutate(next_time = lead(time)) %>%
-        mutate(diff_time = next_time - time) %>%
-        mutate(surv_chunk = diff_time * surv)
-    # this table doesn't start at 0, have to add that first interval
-    rmst_pbo <- sum(KM_pbo$surv_chunk[1:(nrow(KM_pbo) - 1)]) +
-        KM_pbo$time[1]
-
-    KM_trt <- KM_trt %>%
-        mutate(next_time = lead(time)) %>%
-        mutate(diff_time = next_time - time) %>%
-        mutate(surv_chunk = diff_time * surv)
-    # this table doesn't start at 0, have to add that first interval
-    rmst_trt <- sum(KM_trt$surv_chunk[1:(nrow(KM_trt)-1)]) +
-        KM_trt$time[1]
-
-    return(list(rmst_pbo=rmst_pbo, rmst_trt=rmst_trt))
+    return(returnDF)
 }
 
 #' My personal non-parametric RMST function that allows for
@@ -74,15 +63,13 @@ integrate_survdat <- function(dat, tau) {
 #' Provides estimate, SE, CI for each arm. Provides same for
 #' difference in arms (and also p-value).
 #'
-#' @param num_boots Number of bootstrap iterations
 #' @param dat Data frame of time-to-event data which MUST have the columns
 #' 'time', 'arm', and 'status
 #' @param tau How long of a follow-up to consider, i.e. we integrate the survival
 #' functions from 0 to tau
 #' @param alpha Confidence interval is given for (alpha/2, 1-alpha/2) percentiles
-#' @param seed For reproducibility
 #'
-#' @return A list including out_tab (estimate and CI in both arms), trt_rmst,
+#' @return A list including outTab (estimate and CI in both arms), trt_rmst,
 #' pbo_rmst, diff_rmst, trt_CI, pbo_CI, diff_CI. Assumes trt coded as arm 1 and
 #' placebo coded as arm 0.
 #'
@@ -95,81 +82,36 @@ integrate_survdat <- function(dat, tau) {
 #' dat <- data.frame(time=time, status=status, arm=arm)
 #' nonparam_rmst(dat=dat, tau=1, alpha=0.05)
 #'
-nonparam_rmst <- function(num_boots=1000, dat, tau, alpha, find_pval=FALSE, seed=NULL) {
-
-     if(is.numeric(seed)) {set.seed(seed)}
+nonparam_rmst <- function(dat, tau, alpha = 0.05) {
 
     # make sure data has necessary arms
     if ( length(which(c('time', 'status', 'arm') %in% colnames(dat))) != 3) {
-        error('Column names must include time, status, arm')
+        error('Column names must include time, status, arm exactly.')
+    }
+    uniqueArms <- sort(unique(dat$arm))
+    if ( length(uniqueArms) > 2) {
+        print("More than two arms, contrasts will only be between first two numerically sorted arms.")
     }
 
-    # make one dataset for each arm
-    trt_dat <- dat[which(dat$arm == 1), ]
-    pbo_dat <- dat[which(dat$arm == 0), ]
-
-    boot_df <- data.frame(rmst_trt=rep(NA, num_boots), rmst_pbo=NA,
-                          rmst_diff=NA)
-    # resample under the distribution of the data (not the null)
-    for (i in 1:num_boots) {
-        trt_samp <- dplyr::sample_n(trt_dat, nrow(trt_dat), replace=TRUE)
-        pbo_samp <- dplyr::sample_n(pbo_dat, nrow(pbo_dat), replace=TRUE)
-
-        # put it back together, calculate AUC
-        samp_dat <- rbind(trt_samp, pbo_samp)
-        AUC_output <- integrate_survdat(dat=samp_dat, tau=tau)
-
-        # calculate AUC
-        boot_df$rmst_trt[i] <- AUC_output$rmst_trt
-        boot_df$rmst_pbo[i] <- AUC_output$rmst_pbo
-        boot_df$rmst_diff[i] <- AUC_output$rmst_trt - AUC_output$rmst_pbo
+    # loop through arms
+    outList <- list()
+    for (arm_it in 1:length(uniqueArms)) {
+        tempDat <- dat %>% filter(arm == uniqueArms[arm_it])
+        tempIntegrate <- integrate_survdat(dat = tempDat, tau = tau, alpha=alpha)
+        outList[[arm_it]] <- tempIntegrate
     }
+    # name the list
+    names(outList) <- paste0("Arm", uniqueArms)
 
-    # find CI for RMST
-    rmst_trt_CI <- quantile(boot_df$rmst_trt, probs=c(alpha/2, 1-alpha/2))
-    rmst_pbo_CI <- quantile(boot_df$rmst_pbo, probs=c(alpha/2, 1-alpha/2))
-    rmst_diff_CI <- quantile(boot_df$rmst_diff, probs=c(alpha/2, 1-alpha/2))
+    # contrasts
+    # rmst difference
+    rmstDiff10 <- outList[[2]]$Est[1] - outList[[1]]$Est[1]
+    rmstDiff10se <- sqrt(outList[[2]]$se[1]^2 + outList[[1]]$se[1]^2)
+    rmstDiff10low <- rmstDiff10 - qnorm(1 - alpha/2) * rmstDiff10se
+    rmstDiff10up <- rmstDiff10 + qnorm(1 - alpha/2) * rmstDiff10se
+    rmstDiff10pval <- 1 - pchisq( (rmstDiff10 / rmstDiff10se)^2, df=1 )
+    contrastDF <- data.frame(Contrast = "Arm1 - Arm0", Est = rmstDiff10, se = rmstDiff10,
+                             Lower = rmstDiff10low, Upper = rmstDiff10up, pval = rmstDiff10pval)
 
-    # RMST for observed data
-    AUC_output <- integrate_survdat(dat=dat, tau=tau)
-    rmst_trt <- AUC_output$rmst_trt
-    rmst_pbo <- AUC_output$rmst_pbo
-    rmst_diff <- rmst_trt - rmst_pbo
-
-    # format RMST output into df
-    rmst_df <- data.frame( cbind(c(rmst_trt, rmst_pbo, rmst_diff),
-                                 rbind(rmst_trt_CI, rmst_pbo_CI, rmst_diff_CI)) )
-    colnames(rmst_df) <- c('Est', alpha/2, 1-alpha/2)
-    rownames(rmst_df) <- c('Arm1', 'Arm0', 'Arm1-Arm0')
-
-    # only if we want p-values
-    if (find_pval) {
-        null_boot_df <- data.frame(rmst_trt=rep(NA, num_boots), rmst_pbo=NA,
-                                   rmst_diff=NA, mean_trt=NA, mean_pbo=NA,
-                                   mean_diff=NA)
-        # resample under null for pvalue
-        for (i in 1:num_boots) {
-            temp_trt_assign <- sample(x=1:nrow(dat), size=nrow(trt_dat), replace=FALSE)
-            trt_samp <- dat[temp_trt_assign, ] %>%
-                mutate(arm = 1)
-            pbo_samp <- dat[-temp_trt_assign, ] %>%
-                mutate(arm = 0)
-
-            # put it back together, calculate AUC
-            samp_dat <- rbind(trt_samp, pbo_samp)
-            AUC_output <- integrate_survdat(dat=samp_dat, tau=tau)
-
-            # calculate AUC
-            null_boot_df$rmst_trt[i] <- AUC_output$rmst_trt
-            null_boot_df$rmst_pbo[i] <- AUC_output$rmst_pbo
-            null_boot_df$rmst_diff[i] <- AUC_output$rmst_trt - AUC_output$rmst_pbo
-        }
-        pval_df <- data.frame(rmst_diff_pside = length(which(null_boot_df$rmst_diff > rmst_diff)) / num_boots,
-                              rmst_diff_nside = length(which(null_boot_df$rmst_diff < rmst_diff)) / num_boots,
-                              rmst_diff_2side = length(which(abs(null_boot_df$rmst_diff) > abs(rmst_diff))) / num_boots)
-    } else {
-        pval_df <- NULL
-    }
-
-    return( list(rmst_df=rmst_df, pval_df=pval_df))
+    return( list(oneArmList = outList, contrastDF = contrastDF))
 }

@@ -29,7 +29,9 @@ library(reconstructKM)
 
 Oftentimes it is of interest to medical clinicians or statisticians to further investigate or reanalyze data from a clinical trial.  For instance, the clinician may want to reinterpret the risks/benefits using different measures (e.g. median survival time or restricted mean survival time instead of the hazard ratio), or the statistician may be interested in using the data for methodological development. 
 
-Most clinical trials with time-to-event data (e.g. testing survival times under two different treatments) published in medical journals (NEJM, JAMA, Journal of Clinical Oncology, etc.) will present Kaplan-Meier curves depicting the survival under multiple treatment arms. reconstructKM allows the researcher to reconstruct the patient-level data (survival time, censoring status, and treatment arm for each individual in the study), using just the figure from the journal (Guyot et al, Biomedical Research Methodology 2012). Consider the following example from Effect of Pembrolizumab plus Chemotherapy in Metastatic Non–Small-Cell Lung Cancer (Gandhi et al. NEJM 2018):
+Most clinical trials with time-to-event data (e.g. testing survival times under two different treatments) published in medical journals (NEJM, JAMA, Journal of Clinical Oncology, etc.) will present Kaplan-Meier curves depicting the survival under multiple treatment arms. reconstructKM allows the researcher to reconstruct the patient-level data (survival time, censoring status, and treatment arm for each individual in the study), using just the figure from the journal (Guyot et al, Biomedical Research Methodology 2012). 
+
+Consider the following example from Effect of Pembrolizumab plus Chemotherapy in Metastatic Non–Small-Cell Lung Cancer (Gandhi et al. NEJM 2018), for which we (Sun, Rich, & Wei) published a Correspondence using data from this package (DOI: 10.1056/NEJMc1808567):
 
 ```{r out.width = "700px", echo=FALSE}
 knitr::include_graphics(("pembro_overall.png"))
@@ -45,13 +47,13 @@ There are three main parts to the procedure, which can be performed in ~30 minut
 2. Manually input number at risk information.  
 3. Run the package functions as shown below to reconstruct individual-level data.
 
-We go into more detail below and provide some example screenshots.
+We go into more detail below and provide some example screenshots for the NEJM Correspondence example.
 
 # Part 1
 
-a. You will likely first need to calibrate the axes in your digitizer software. That is, you need to click at the minimum and maximum points of the X and Y axes and tell the software what the values are at these points. In our example, these are 0 and 30 for the X axis. The Y axis min/max should always be 0/1 since it is survival. These clicks provide a reference for the software, so it can extrapolate where the rest of your clicks fall.
+a. You will likely first need to calibrate the axes in your digitizer software. That is, you need to click at the minimum and maximum points of the X and Y axes and tell the software what the values are at these points. In our example, these are 0 and 21 for the X axis. The Y axis min/max should always be 0/1 since it is survival. These clicks provide a reference for the software, so it can extrapolate where the rest of your clicks fall.
 
-b. Focusing on a single arm only (e.g. just the orange temozolomide arm in the figure above), click at leftmost point of each horizontal line segment, starting at the leftmost horizontal line segment and moving right. You first click should come at the (0,1) coordinate (but don't worry if you can't hit it exactly, you can always manually set it later). See below for examples of first and last clicks. 
+b. Focusing on a single arm only (e.g. just the blue pembrolizumab arm in the figure above), click at leftmost point of each horizontal line segment, starting at the leftmost horizontal line segment and moving right. You first click should come at the (0,1) coordinate (but don't worry if you can't hit it exactly, you can always manually set it later). See below for examples of first and last clicks. 
   * As you are clicking, the software should be recording the points as you see in the screenshot.
   * Sometimes the lines are oddly shaped or very thick, try to click the point that you believe is accurately representing the data at each segment (obviously this is subjective, just try to be consistent).
 
@@ -87,7 +89,7 @@ a. Call format_raw_tabs() function and feed it the NAR table (to the raw_NAR arg
   
 b. Call the KM_reconstruct function and feed it the outcomes from format_raw_tabs(). Specifically, for the aug_NAR argument, feed it the aug_NAR output from format_raw_tabs(), and for the aug_surv argument, feed it the aug_surv output from format_raw_tabs(). Do this separately for each arm.
 
-c. Put the data from all arms together. I do this by creating a data.frame with arm=0 and the data from the no TTF arm, creating a data.frame with arm=1 and the data from the TTF arm, and then binding the rows of these two data.frames together.
+c. Put the data from all arms together. I do this by creating a data.frame with arm=0 and the data from the placebo arm, creating a data.frame with arm=1 and the data from the pembrolizumab arm, and then binding the rows of these two data.frames together.
 
 ```{r reconstruct example, eval=TRUE, results='show', echo=TRUE, warning=FALSE}
 # Here I am loading some example data, but you will have to load your own data, for example by modifying
@@ -126,14 +128,13 @@ Now you have the reconstructed dataset and can check its veracity, for example b
 # plot
 pembro_KM_fit <- survival::survfit(survival::Surv(time, status) ~ arm, data=allIPD)
 
-
 pembro_KM <- survminer::ggsurvplot(pembro_KM_fit, data = allIPD, risk.table = TRUE, 
                         palette=c('red', 'blue'),
-           legend=c(0.63,0.9), legend.title='',legend.labs=c('Pembrolizumab', 'Placebo'),
+           legend=c(0.35,0.25), legend.title='',legend.labs=c('Pembrolizumab', 'Placebo'),
            title='Overall Survival',
            ylab='Survival (%)', xlab='Time (Mo)',
            tables.y.text=TRUE,
-           tables.y.text.col=FALSE, risk.table.title='Number at Risk', break.time.by=63)
+           tables.y.text.col=FALSE, risk.table.title='Number at Risk', break.time.by=6)
 pembro_KM$plot       
 ```
 

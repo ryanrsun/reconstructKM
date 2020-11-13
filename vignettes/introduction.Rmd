@@ -29,10 +29,10 @@ library(reconstructKM)
 
 Oftentimes it is of interest to medical clinicians or statisticians to further investigate or reanalyze data from a clinical trial.  For instance, the clinician may want to reinterpret the risks/benefits using different measures (e.g. median survival time or restricted mean survival time instead of the hazard ratio), or the statistician may be interested in using the data for methodological development. 
 
-Most clinical trials with time-to-event data (e.g. testing survival times under two different treatments) published in medical journals (JAMA, Journal of Clinical Oncology, etc.) will present Kaplan-Meier curves depicting the survival under multiple treatment arms. reconstructKM allows the researcher to reconstruct the patient-level data (survival time, censoring status, and treatment arm for each individual in the study), using just the figure from the journal (Guyot et al, Biomedical Research Methodology 2012). Consider the following example from Effect of Tumor-Treating Fields Plus Maintenance Temozolomide vs Maintenannce Temozolomide Alone on Survival in Patients With Glioblastoma (Stupp et al. JAMA 2017):
+Most clinical trials with time-to-event data (e.g. testing survival times under two different treatments) published in medical journals (NEJM, JAMA, Journal of Clinical Oncology, etc.) will present Kaplan-Meier curves depicting the survival under multiple treatment arms. reconstructKM allows the researcher to reconstruct the patient-level data (survival time, censoring status, and treatment arm for each individual in the study), using just the figure from the journal (Guyot et al, Biomedical Research Methodology 2012). Consider the following example from Effect of Pembrolizumab plus Chemotherapy in Metastatic Non–Small-Cell Lung Cancer (Gandhi et al. NEJM 2018):
 
 ```{r out.width = "700px", echo=FALSE}
-knitr::include_graphics(("TTFields_pfs_orig.png"))
+knitr::include_graphics(("pembro_overall.png"))
 ```
 
 \newline 
@@ -57,8 +57,8 @@ b. Focusing on a single arm only (e.g. just the orange temozolomide arm in the f
 
 
 ```{r out.width = "700px", echo=FALSE}
-knitr::include_graphics(("TTFields_first_click.png"))
-knitr::include_graphics(("TTFields_last_click.png"))
+knitr::include_graphics(("pembro_first_clicks.png"))
+knitr::include_graphics(("pembro_last_clicks.png"))
 ```
 
 c. Once you are done, there should be an option to export your clicks to Excel or some other file format (in Plot Digitizer, just click "Done" and then copy the numbers to Excel). Save this file.
@@ -74,8 +74,9 @@ For part 2, simply create data.frames in R for each arm that hold the time and n
 ```{r NAR example, eval=TRUE, results='show', echo=TRUE, warning=FALSE}
 
 # define the NAR
-PFS_TTF_NAR <- data.frame(time=seq(from=0, to=30, by=6), NAR=c(466, 220, 100, 62,30,18))
-PFS_noTTF_NAR <- data.frame(time=seq(from=0, to=30, by=6), NAR=c(229, 66, 35, 18, 9, 2))
+pembro_NAR <- data.frame(time=seq(from=0, to=21, by=3), NAR=c(410, 377, 347, 278,  163, 71, 18, 0))
+pbo_NAR <- data.frame(time=seq(from=0, to=21, by=3), NAR=c(206, 183, 149, 104, 59, 25, 8, 0))
+
 ```
 
 # Part 3
@@ -92,28 +93,28 @@ c. Put the data from all arms together. I do this by creating a data.frame with 
 # Here I am loading some example data, but you will have to load your own data, for example by modifying
 # the commented code below (to use your own file structure and file names).
 # setwd("/users/rsun3/desktop")
-# TTFclicks <- read.csv("TTFclicks.csv")
+# pembro_clicks <- read.csv("pembro_clicks.csv")
 
 # load example data
-data("PFS_noTTF_clicks")
-data("PFS_TTF_clicks")
-data("PFS_noTTF_NAR")
-data("PFS_TTF_NAR")
+data("pembro_clicks")
+data("pembro_NAR")
+data("pbo_clicks")
+data("pbo_NAR")
 
 # call format_raw_tabs() with the clicks table and NAR table
-noTTF_aug <- format_raw_tabs(raw_NAR=PFS_noTTF_NAR,
-                                  raw_surv=PFS_noTTF_clicks) 
-TTF_aug <- format_raw_tabs(raw_NAR=PFS_TTF_NAR,
-                                  raw_surv=PFS_TTF_clicks) 
+pembro_aug <- format_raw_tabs(raw_NAR=pembro_NAR,
+                                  raw_surv=pembro_clicks) 
+pbo_aug <- format_raw_tabs(raw_NAR=pbo_NAR,
+                                  raw_surv=pbo_clicks) 
 
 # reconstruct by calling KM_reconstruct()
-noTTF_recon <- KM_reconstruct(aug_NAR=noTTF_aug$aug_NAR, aug_surv=noTTF_aug$aug_surv)
-TTF_recon <- KM_reconstruct(aug_NAR=TTF_aug$aug_NAR, aug_surv=TTF_aug$aug_surv)
+pembro_recon <- KM_reconstruct(aug_NAR=pembro_aug$aug_NAR, aug_surv=pembro_aug$aug_surv)
+pbo_recon <- KM_reconstruct(aug_NAR=pbo_aug$aug_NAR, aug_surv=pbo_aug$aug_surv)
 
 # put the treatment and control arms into one dataset
-noTTF_IPD <- data.frame(arm=0, time=noTTF_recon$IPD_time, status=noTTF_recon$IPD_event)
-TTF_IPD <- data.frame(arm=1, time=TTF_recon$IPD_time, status=TTF_recon$IPD_event)
-allIPD <- rbind(noTTF_IPD, TTF_IPD)
+pembro_IPD <- data.frame(arm=1, time=pembro_recon$IPD_time, status=pembro_recon$IPD_event)
+pbo_IPD <- data.frame(arm=0, time=pbo_recon$IPD_time, status=pbo_recon$IPD_event)
+allIPD <- rbind(pembro_IPD, pbo_IPD)
 
 ```
 
@@ -121,44 +122,44 @@ allIPD <- rbind(noTTF_IPD, TTF_IPD)
 
 Now you have the reconstructed dataset and can check its veracity, for example by reconstructing the KM plots.
 
-```{r Plot TTfields, eval=TRUE, echo=TRUE,  fig.align="center"}
+```{r Plot Pembro, eval=TRUE, echo=TRUE,  fig.align="center"}
 # plot
-TTFields_KM_fit <- survival::survfit(survival::Surv(time, status) ~ arm, data=allIPD)
+pembro_KM_fit <- survival::survfit(survival::Surv(time, status) ~ arm, data=allIPD)
 
 
-TTFields_KM <- survminer::ggsurvplot(TTFields_KM_fit, data = allIPD, risk.table = TRUE, 
-                        palette=c('orange2', 'steelblue4'),
-           legend=c(0.63,0.9), legend.title='',legend.labs=c('Temozolomide alone', 'TTFields+temozolomide'),
-           title='PFS',
+pembro_KM <- survminer::ggsurvplot(pembro_KM_fit, data = allIPD, risk.table = TRUE, 
+                        palette=c('red', 'blue'),
+           legend=c(0.63,0.9), legend.title='',legend.labs=c('Pembrolizumab', 'Placebo'),
+           title='Overall Survival',
            ylab='Survival (%)', xlab='Time (Mo)',
            tables.y.text=TRUE,
-           tables.y.text.col=FALSE, risk.table.title='Number at Risk', break.time.by=6)
-TTFields_KM$plot       
+           tables.y.text.col=FALSE, risk.table.title='Number at Risk', break.time.by=63)
+pembro_KM$plot       
 ```
 
-You might also want to fit a Cox model and find the hazard ratio:
+You might also want to fit a Cox model and find the hazard ratio. Note how close the reconstructed estimates are to the original paper estimates:
 
-```{r Cox TTfields, eval=TRUE, results='show', echo=TRUE, warning=FALSE}
+```{r Cox Pembro, eval=TRUE, results='show', echo=TRUE, warning=FALSE}
 
-TTFieldsCox <- coxph(Surv(time, status) ~ arm, data=allIPD)
-print_cox_outputs(TTFieldsCox)
-
-```
-
-You might want to calculate the RMST up to two years:
-
-```{r RMST TTfields, eval=TRUE, results='show', echo=TRUE, warning=FALSE}
-
-TTFieldsRMST <- nonparam_rmst(dat = allIPD, tau = 24, alpha = 0.05) 
-TTFieldsRMST
+pembroCox <- coxph(Surv(time, status) ~ arm, data=allIPD)
+print_cox_outputs(pembroCox)
 
 ```
 
-Or you might want to project the RMST out to four years using a Weibull fit for the data:
+You might want to calculate the restricted mean survival time (RMST) up to 18 months:
 
-```{r RMST weibull TTfields, eval=TRUE, results='show', cache=TRUE, echo=TRUE, warning=FALSE}
+```{r RMST Pembro, eval=TRUE, results='show', echo=TRUE, warning=FALSE}
 
-weibullFit <- weibull_rmst(num_boots=1000, dat=allIPD, tau=48, alpha=0.05, find_pval=FALSE, seed=NULL)
+pembroRMST <- nonparam_rmst(dat = allIPD, tau = 18, alpha = 0.05) 
+pembroRMST
+
+```
+
+Or you might want to project the RMST out to five years using a Weibull fit for the data:
+
+```{r RMST weibull Pembro, eval=TRUE, results='show', cache=TRUE, echo=TRUE, warning=FALSE}
+
+weibullFit <- weibull_rmst(num_boots=1000, dat=allIPD, tau=60, alpha=0.05, find_pval=FALSE, seed=NULL)
 weibullFit$rmst_df
 ```
 

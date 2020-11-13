@@ -1,53 +1,53 @@
-#' Tumor-Treating Fields example PFS KM reconstruction clicks - Temozolomide alone arm
+#' Pembrolizumab example OS KM reconstruction clicks - pembrolizumab arm
 #'
-#' A dataset containing the clicks used to reconstruct the Temozolomide alone KM curve.
+#' A dataset containing the clicks used to reconstruct the pembrolizumab OS KM curve.
 #'
-#' @format A data frame with 114 rows and 2 variables:
+#' @format A data frame with 97 rows and 2 variables:
 #' \describe{
 #'   \item{time}{event time, months}
 #'   \item{survival}{probability of progression-free survival}
 #' }
-#' @source \url{JAMA. 2018;318(23):2306-2316}
-"PFS_noTTF_clicks"
+#' @source \url{NEJM. 2018;378(22):2078-2092}
+"pembro_clicks"
 
 
-#' Tumor-Treating Fields example PFS NAR table - Temozolomide alone arm
+#' Pembrolizumab example OS NAR table - pembrolizumab arm
 #'
-#' A dataset containing the number at risk information for the Temozolomide alone KM curve.
+#' A dataset containing the number at risk information for the pembrolizumab OS KM curve.
 #'
-#' @format A data frame with 6 rows and 2 variables:
+#' @format A data frame with 8 rows and 2 variables:
 #' \describe{
 #'   \item{time}{event time, months}
 #'   \item{NAR}{number of subjects at risk}
 #'   ...
 #' }
-#' @source \url{JAMA. 2018;318(23):2306-2316}
-"PFS_noTTF_NAR"
+#' @source \url{NEJM. 2018;378(22):2078-2092}
+"pembro_NAR"
 
 
-#' Tumor-Treating Fields example PFS KM reconstruction clicks - TTFields + temozolomide arm
+#' Pembrolizumab example OS KM reconstruction clicks - placebo arm
 #'
-#' A dataset containing the clicks used to reconstruct the TTFields + temozolomide KM curve.
+#' A dataset containing the clicks used to reconstruct the placebo OS KM curve.
 #'
-#' @format A data frame with 223 rows and 2 variables:
+#' @format A data frame with 96 rows and 2 variables:
 #' \describe{
 #'   \item{time}{event time, months}
 #'   \item{survival}{probability of progression-free survival}
 #' }
-#' @source \url{JAMA. 2018;318(23):2306-2316}
-"PFS_TTF_clicks"
+#' @source \url{NEJM. 2018;378(22):2078-2092}
+"pbo_clicks"
 
 
 
-#' Tumor-Treating Fields example PFS NAR table - TTFields + temozolomide arm
+#' Pembrolizumab example OS NAR table - placebo arm
 #'
-#' A dataset containing the number at risk information for the TTFields + temozolomide KM curve.
+#' A dataset containing the number at risk information for the placebo OS KM curve.
 #'
-#' @format A data frame with 6 rows and 2 variables:
+#' @format A data frame with 8 rows and 2 variables:
 #' \describe{
 #'   \item{time}{event time, months}
 #'   \item{NAR}{number of subjects at risk}
 #'   ...
 #' }
-#' @source \url{JAMA. 2018;318(23):2306-2316}
-"PFS_TTF_NAR"
+#' @source \url{NEJM. 2018;378(22):2078-2092}
+"pbo_NAR"

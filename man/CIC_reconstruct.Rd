@@ -2,43 +2,41 @@
 % Please edit documentation in R/CIC_reconstruct.R
 \name{CIC_reconstruct}
 \alias{CIC_reconstruct}
-\title{In competing risks situations, papers may provide one overall KM plot for 
-the composite outcome of event 1 or event 2 as well as cumulative incidence
-plots for the each event separately. We can use these three plots to reconstruct
-individual level data with event-specific labels (censored, event 1, or event 2).
-Can also handle the case when the CIC for event 2 is not given.}
+\title{CIC_reconstruct.R}
 \usage{
 CIC_reconstruct(overallIPD, clicks1, arm, clicks2 = NULL)
 }
 \arguments{
 \item{overallIPD}{The individual patient data from the overall (composite outcome) plot
-that has already been processed through reconstructKM. Should have three columns: time, 
+that has already been processed through reconstructKM. Should have three columns: time,
 status, and arm.}
 
 \item{clicks1}{A data.frame with "time" and "cuminc" columns that are output from the
-digitizing software, similar to what you would input for reconstructKM except it's a 
+digitizing software, similar to what you would input for reconstructKM except it's a
 cumulative incidence function for a specific event, not a survival function (make sure first click is (0,0)).}
 
 \item{arm}{The arm corresponding to clicks1 and possibly clicks2.}
 
-\item{clicks2}{Same as clicks1 but for the second event. Default is null.}
+\item{clicks2}{Same as clicks1 but for the second event if it's provided. Default is null.}
 }
 \value{
 An augmented version of overallIPD that additionally gives the cause
 of the event (cause 1 or cause 2) as a fourth "event" column.
 }
 \description{
-In competing risks situations, papers may provide one overall KM plot for 
+In competing risks situations, papers may provide one overall KM plot for
 the composite outcome of event 1 or event 2 as well as cumulative incidence
 plots for the each event separately. We can use these three plots to reconstruct
 individual level data with event-specific labels (censored, event 1, or event 2).
 Can also handle the case when the CIC for event 2 is not given.
+Run this separately for each arm.
 }
 \examples{
-data(TTfields_pfs_trt_NAR)
-data(TTfields_pfs_trt_clicks)
-augmented_NAR <- format_raw_tabs(raw_NAR=TTfields_pfs_trt_NAR, raw_surv=TTfields_pfs_trt_clicks)
-reconstruct <- KM_reconstruct(aug_NAR=augmented_NAR$aug_NAR, aug_surv=augmented_NAR$aug_surv)
+data(PFS_TTF_clicks)
+data(PFS_TTF_NAR)
+augTabs <- format_raw_tabs(raw_NAR=PFS_TTF_NAR, raw_surv=PFS_TTF_clicks)
+reconstruct <- KM_reconstruct(aug_NAR=augTabs$aug_NAR, aug_surv=augTabs$aug_surv)
 IPD <- data.frame(arm=1, time=reconstruct$IPD_time, status=reconstruct$IPD_event)
-CIC_reconstruct(overallIPD = IPD, clicks1 = TTfields_pfs_trt_clicks \%>\% mutate(cuminc=1-survival), arm=1, clicks2=NULL)
+clicks1 <- dplyr::mutate(PFS_TTF_clicks, cuminc=1-survival)
+CIC_reconstruct(overallIPD = IPD, clicks1 = clicks1, arm=1, clicks2=NULL)
 }

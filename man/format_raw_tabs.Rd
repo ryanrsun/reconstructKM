@@ -2,8 +2,7 @@
 % Please edit documentation in R/format_raw_tabs.R
 \name{format_raw_tabs}
 \alias{format_raw_tabs}
-\title{Augment a raw number at risk table with the necessary information to run
-the reconstruction algorithm.}
+\title{format_raw_tabs.R}
 \usage{
 format_raw_tabs(raw_NAR, raw_surv, tau = NULL)
 }
@@ -15,15 +14,15 @@ format_raw_tabs(raw_NAR, raw_surv, tau = NULL)
 \item{tau}{End of follow-up time, defaults to last time in NAR table.}
 }
 \value{
-An augmented tab that can be used as input in KM_reconstruct().
+A list with aug_NAR and aug_surv, properly cleaned tables that can be used as input in KM_reconstruct().
 }
 \description{
 Augment a raw number at risk table with the necessary information to run
 the reconstruction algorithm.
 }
 \examples{
-data(TTfields_pfs_trt_NAR)
-data(TTfields_pfs_trt_clicks)
-augmented_NAR <- format_NAR_tab(rawNAR=TTfields_pfs_trt_NAR, rawSurv=TTfields_pfs_trt_clicks)
+data(PFS_TTF_clicks)
+data(PFS_TTF_NAR)
+augTabs <- format_raw_tabs(raw_NAR=PFS_TTF_NAR, raw_surv=PFS_TTF_clicks)
 
 }

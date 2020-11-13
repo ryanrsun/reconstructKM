@@ -1,6 +1,6 @@
-#' Tumor-Treating Fields PFS KM reconstruction clicks - placebo
+#' Tumor-Treating Fields example PFS KM reconstruction clicks - Temozolomide alone arm
 #'
-#' A dataset containing the clicks used to reconstruct the placebo KMC in Fig 2A
+#' A dataset containing the clicks used to reconstruct the Temozolomide alone KM curve.
 #'
 #' @format A data frame with 114 rows and 2 variables:
 #' \describe{
@@ -8,12 +8,12 @@
 #'   \item{survival}{probability of progression-free survival}
 #' }
 #' @source \url{JAMA. 2018;318(23):2306-2316}
-"TTfields_pfs_pbo_clicks"
+"PFS_noTTF_clicks"
 
 
-#' Tumor-Treating Fields PFS NAR table - placebo
+#' Tumor-Treating Fields example PFS NAR table - Temozolomide alone arm
 #'
-#' A dataset containing the number at risk information for placebo KMC in Fig 2A
+#' A dataset containing the number at risk information for the Temozolomide alone KM curve.
 #'
 #' @format A data frame with 6 rows and 2 variables:
 #' \describe{
@@ -22,12 +22,12 @@
 #'   ...
 #' }
 #' @source \url{JAMA. 2018;318(23):2306-2316}
-"TTfields_pfs_pbo_NAR"
+"PFS_noTTF_NAR"
 
 
-#' Tumor-Treating Fields PFS KM reconstruction clicks - treatment
+#' Tumor-Treating Fields example PFS KM reconstruction clicks - TTFields + temozolomide arm
 #'
-#' A dataset containing the clicks used to reconstruct the treatment KMC in Fig 2A
+#' A dataset containing the clicks used to reconstruct the TTFields + temozolomide KM curve.
 #'
 #' @format A data frame with 223 rows and 2 variables:
 #' \describe{
@@ -35,13 +35,13 @@
 #'   \item{survival}{probability of progression-free survival}
 #' }
 #' @source \url{JAMA. 2018;318(23):2306-2316}
-"TTfields_pfs_trt_clicks"
+"PFS_TTF_clicks"
 
 
 
-#' Tumor-Treating Fields PFS NAR table - treatment
+#' Tumor-Treating Fields example PFS NAR table - TTFields + temozolomide arm
 #'
-#' A dataset containing the number at risk information for treatment KMC in Fig 2A
+#' A dataset containing the number at risk information for the TTFields + temozolomide KM curve.
 #'
 #' @format A data frame with 6 rows and 2 variables:
 #' \describe{
@@ -50,4 +50,4 @@
 #'   ...
 #' }
 #' @source \url{JAMA. 2018;318(23):2306-2316}
-"TTfields_pfs_trt_NAR"
+"PFS_TTF_NAR"

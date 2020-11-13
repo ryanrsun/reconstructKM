@@ -2,18 +2,15 @@
 % Please edit documentation in R/nonparam_rmst.R
 \name{nonparam_rmst}
 \alias{nonparam_rmst}
-\title{My personal non-parametric RMST function that allows for
+\title{Non-parametric RMST function that allows for
 the tau (follow-up time) to be arbitrarily large. Uno package
 restricts it to be min(last observed event in either arm).
 Provides estimate, SE, CI for each arm. Provides same for
 difference in arms (and also p-value).}
 \usage{
-nonparam_rmst(num_boots = 1000, dat, tau, alpha, find_pval = FALSE,
-  seed = NULL)
+nonparam_rmst(dat, tau, alpha = 0.05)
 }
 \arguments{
-\item{num_boots}{Number of bootstrap iterations}
-
 \item{dat}{Data frame of time-to-event data which MUST have the columns
 'time', 'arm', and 'status}
 
@@ -21,16 +18,13 @@ nonparam_rmst(num_boots = 1000, dat, tau, alpha, find_pval = FALSE,
 functions from 0 to tau}
 
 \item{alpha}{Confidence interval is given for (alpha/2, 1-alpha/2) percentiles}
-
-\item{seed}{For reproducibility}
 }
 \value{
-A list including out_tab (estimate and CI in both arms), trt_rmst,
-pbo_rmst, diff_rmst, trt_CI, pbo_CI, diff_CI. Assumes trt coded as arm 1 and
-placebo coded as arm 0.
+A list including data.frame of results in each arm (RMST, RMTL, SE, pvalue, CI)
+as well as data.frame of results for Arm1 - Arm0 RMST.
 }
 \description{
-My personal non-parametric RMST function that allows for
+Non-parametric RMST function that allows for
 the tau (follow-up time) to be arbitrarily large. Uno package
 restricts it to be min(last observed event in either arm).
 Provides estimate, SE, CI for each arm. Provides same for
@@ -38,7 +32,7 @@ difference in arms (and also p-value).
 }
 \examples{
 time <- rnorm(100)
-status <- rbinom(n=100, size=0.5)
+status <- rbinom(n=100, size=1, prob=0.5)
 arm <- c( rep(1, 50), rep(0, 50))
 dat <- data.frame(time=time, status=status, arm=arm)
 nonparam_rmst(dat=dat, tau=1, alpha=0.05)

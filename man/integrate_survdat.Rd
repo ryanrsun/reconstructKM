@@ -2,25 +2,29 @@
 % Please edit documentation in R/nonparam_rmst.R
 \name{integrate_survdat}
 \alias{integrate_survdat}
-\title{Calculate nonparametric RMST for data.frame with time, status, arm}
+\title{nonparam_rmst.R}
 \usage{
-integrate_survdat(dat, tau)
+integrate_survdat(dat, tau, alpha = 0.05)
 }
 \arguments{
 \item{dat}{Data frame of time-to-event data which MUST have the columns
-'time', 'arm', and 'status}
+'time' and 'status' exactly}
+
+\item{tau}{The cutoff time, a scalar}
+
+\item{alpha}{Level for confidence interval}
 }
 \value{
-list with rmst_pbo (arm=0) and rmst_trt (arm=1)
+data.frame with rows for RMST and RMTL and columnns for estimate, std err, pvalue, and CI
 }
 \description{
-Calculate nonparametric RMST for data.frame with time, status, arm
+Calculate nonparametric RMST for a single arm up to tau for data.frame with time and status
 }
 \examples{
+
 time <- rnorm(100)
-status <- rbinom(n=100, size=0.5)
-arm <- c( rep(1, 50), rep(0, 50))
-dat <- data.frame(time=time, status=status, arm=arm)
-integrate_survdat(dat=dat)
+status <- rbinom(n=100, size=1, prob=0.5)
+dat <- data.frame(time=time, status=status)
+integrate_survdat(dat=dat, tau=2)
 
 }

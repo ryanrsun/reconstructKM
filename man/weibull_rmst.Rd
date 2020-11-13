@@ -5,8 +5,7 @@
 \title{RMST for time-to-event data under parametric Weibull fit for data in each
 arm separately. Also can provide CI for RMST estimate and difference in RMST.}
 \usage{
-weibull_rmst(num_boots = 1000, dat, tau, alpha, find_pval = FALSE,
-  seed = NULL)
+weibull_rmst(num_boots = 1000, dat, tau, alpha, find_pval = FALSE, seed = NULL)
 }
 \arguments{
 \item{num_boots}{Number of bootstrap iterations}
@@ -18,6 +17,8 @@ weibull_rmst(num_boots = 1000, dat, tau, alpha, find_pval = FALSE,
 functions from 0 to tau}
 
 \item{alpha}{Confidence interval is given for (alpha/2, 1-alpha/2) percentiles}
+
+\item{find_pval}{Boolean, if TRUE then does bootstrap under the null to find p-value of mean difference and RMST difference}
 
 \item{seed}{For reproducibility}
 }
@@ -31,8 +32,8 @@ RMST for time-to-event data under parametric Weibull fit for data in each
 arm separately. Also can provide CI for RMST estimate and difference in RMST.
 }
 \examples{
-time <- rnorm(100)
-status <- rbinom(n=100, size=0.5)
+time <- rexp(100)
+status <- rbinom(n=100, prob=0.5, size=1)
 arm <- c( rep(1, 50), rep(0, 50))
 dat <- data.frame(time=time, status=status, arm=arm)
 weibull_rmst(dat=dat, tau=1, alpha=0.05)

@@ -1,5 +1,7 @@
+#' weibull_rmst.R
+#'
 #' Fit the shape and scale parameters for a Weibull distribution
-#' to the time-to-event data using MLE
+#' to the time-to-event data using MLE.
 #'
 #' @param time A vector of event times
 #' @param status A vector of 0-1 censoring status, 0 for censored, 1 for observed
@@ -9,8 +11,8 @@
 #' @export
 #'
 #' @examples
-#' time <- rnorm(100)
-#' status <- rbinom(n=100, size=0.5)
+#' time <- rexp(100)
+#' status <- rbinom(n=100, size=1, prob=0.5)
 #' weimle1(time=time, status=status)
 #'
 weimle1 <- function(time, status){
@@ -36,6 +38,7 @@ weimle1 <- function(time, status){
 #' functions from 0 to tau
 #' @param alpha Confidence interval is given for (alpha/2, 1-alpha/2) percentiles
 #' @param seed For reproducibility
+#' @param find_pval Boolean, if TRUE then does bootstrap under the null to find p-value of mean difference and RMST difference
 #'
 #' @return A list including out_tab (estimate and CI in both arms), trt_rmst,
 #' pbo_rmst, diff_rmst, trt_CI, pbo_CI, diff_CI. Assumes trt coded as arm 1 and
@@ -44,8 +47,8 @@ weimle1 <- function(time, status){
 #' @export
 #'
 #' @examples
-#' time <- rnorm(100)
-#' status <- rbinom(n=100, size=0.5)
+#' time <- rexp(100)
+#' status <- rbinom(n=100, prob=0.5, size=1)
 #' arm <- c( rep(1, 50), rep(0, 50))
 #' dat <- data.frame(time=time, status=status, arm=arm)
 #' weibull_rmst(dat=dat, tau=1, alpha=0.05)
@@ -60,7 +63,7 @@ weibull_rmst <- function(num_boots=1000, dat, tau, alpha, find_pval=FALSE, seed=
     }
 
     if ( length(which(c('time', 'status', 'arm') %in% colnames(dat))) != 3) {
-        error('Column names must include time, status, arm')
+        stop('Column names must include time, status, arm')
     }
 
     # make one dataset for each arm

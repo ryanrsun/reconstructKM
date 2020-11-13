@@ -1,3 +1,5 @@
+#' format_raw_tabs.R
+#'
 #' Augment a raw number at risk table with the necessary information to run
 #' the reconstruction algorithm.
 #'
@@ -5,14 +7,14 @@
 #' @param raw_surv A data frame with the columns 'time' and 'survival' at least.
 #' @param tau End of follow-up time, defaults to last time in NAR table.
 #'
-#' @return An augmented tab that can be used as input in KM_reconstruct().
+#' @return A list with aug_NAR and aug_surv, properly cleaned tables that can be used as input in KM_reconstruct().
 #'
 #' @export
 #'
 #' @examples
-#' data(TTfields_pfs_trt_NAR)
-#' data(TTfields_pfs_trt_clicks)
-#' augmented_NAR <- format_NAR_tab(rawNAR=TTfields_pfs_trt_NAR, rawSurv=TTfields_pfs_trt_clicks)
+#' data(PFS_TTF_clicks)
+#' data(PFS_TTF_NAR)
+#' augTabs <- format_raw_tabs(raw_NAR=PFS_TTF_NAR, raw_surv=PFS_TTF_clicks)
 #'
 format_raw_tabs <- function(raw_NAR, raw_surv, tau=NULL) {
 
@@ -21,7 +23,7 @@ format_raw_tabs <- function(raw_NAR, raw_surv, tau=NULL) {
     if (has_col != 2) { stop('raw_surv must have columns named time and survival exactly') }
 
     # subset and order clicks
-    raw_surv <- dplyr::select(raw_surv, time, survival) %>%
+    raw_surv <- dplyr::select(raw_surv, .data$time, .data$survival) %>%
         dplyr::arrange(time)
 
     # make sure survival is non-increasing, starts with (0,1), ends with an event
@@ -43,7 +45,7 @@ format_raw_tabs <- function(raw_NAR, raw_surv, tau=NULL) {
     if (has_col != 2) { stop('raw_NAR must have columns named time and NAR exactly') }
 
     # subset and order NAR
-    raw_NAR <- dplyr::select(raw_NAR, time, NAR) %>%
+    raw_NAR <- dplyr::select(raw_NAR, .data$time, .data$NAR) %>%
         dplyr::arrange(time)
 
     # make sure NAR is non-increasing
@@ -68,7 +70,7 @@ format_raw_tabs <- function(raw_NAR, raw_surv, tau=NULL) {
 
     # augment NAR, remove NA rows
     aug_NAR <- dplyr::bind_cols(raw_NAR[-nrow(raw_NAR), ], ints) %>%
-        dplyr::filter(!is.na(lower))
+        dplyr::filter(!is.na(.data$lower))
 
     # manually add last row to NAR and clicks tables
     last_NAR_row <- data.frame(time=max(raw_NAR$time),

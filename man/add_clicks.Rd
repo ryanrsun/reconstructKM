@@ -2,10 +2,7 @@
 % Please edit documentation in R/add_clicks.R
 \name{add_clicks}
 \alias{add_clicks}
-\title{When there are more clicks in the composite (overall) outcome curve,
-we need to add them to the subdistribution curves. Find the time points
-in the composite data that are furthest away from the times in clicksDF,
-add these times to clicksDF with 0 jumps in cuminc.}
+\title{add_clicks.R}
 \usage{
 add_clicks(clicksDF, targetTimes, nAdd)
 }

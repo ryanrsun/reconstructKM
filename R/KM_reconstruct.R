@@ -1,5 +1,7 @@
+#' KM_reconstruct.R
+#'
 #' Reconstruct individual-level data from augmented survival table and
-#' NAR table, with augmentation performed by format_raw_tabs().
+#' augmented NAR table, with augmentation performed by format_raw_tabs().
 #'
 #' @param aug_NAR A data frame processed through format_raw_tabs().
 #' @param aug_surv A data frame processed through format_raw_tabs().
@@ -10,10 +12,10 @@
 #' @export
 #'
 #' @examples
-#' data(TTfields_pfs_trt_NAR)
-#' data(TTfields_pfs_trt_clicks)
-#' augmented_NAR <- format_raw_tabs(rawNAR=TTfields_pfs_trt_NAR, rawSurv=TTfields_pfs_trt_clicks)
-#' KM_reconstruct(aug_NAR=augmented_NAR$aug_NAR, aug_surv=augmented_NAR$aug_surv)
+#' data(PFS_TTF_NAR)
+#' data(PFS_TTF_clicks)
+#' augTabs <- format_raw_tabs(raw_NAR=PFS_TTF_NAR, raw_surv=PFS_TTF_clicks)
+#' KM_reconstruct(aug_NAR=augTabs$aug_NAR, aug_surv=augTabs$aug_surv)
 #'
 KM_reconstruct <- function(aug_NAR, aug_surv) {
 

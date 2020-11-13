@@ -2,8 +2,7 @@
 % Please edit documentation in R/weibull_rmst.R
 \name{weimle1}
 \alias{weimle1}
-\title{Fit the shape and scale parameters for a Weibull distribution
-to the time-to-event data using MLE}
+\title{weibull_rmst.R}
 \usage{
 weimle1(time, status)
 }
@@ -17,11 +16,11 @@ A list including out (the return from mle()), shape, and scale
 }
 \description{
 Fit the shape and scale parameters for a Weibull distribution
-to the time-to-event data using MLE
+to the time-to-event data using MLE.
 }
 \examples{
-time <- rnorm(100)
-status <- rbinom(n=100, size=0.5)
+time <- rexp(100)
+status <- rbinom(n=100, size=1, prob=0.5)
 weimle1(time=time, status=status)
 
 }

@@ -9,16 +9,15 @@ Encoding: UTF-8
 LazyData: true
 Depends: R (>= 2.10)
 Imports:
-    mvtnorm,
-    SKAT,
     stats,
     dplyr,
     magrittr,
     survival,
-    survminer,
-	surv2sampleComp,
+	rlang,
+	stats4,
+    survminer
 License: GPL-3
-RoxygenNote: 6.1.1
+RoxygenNote: 7.1.1
 Suggests: knitr,
     rmarkdown,
     testthat

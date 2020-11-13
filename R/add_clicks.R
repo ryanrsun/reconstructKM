@@ -1,8 +1,10 @@
+#' add_clicks.R
+#'
 #' When there are more clicks in the composite (overall) outcome curve,
 #' we need to add them to the subdistribution curves. Find the time points
 #' in the composite data that are furthest away from the times in clicksDF,
 #' add these times to clicksDF with 0 jumps in cuminc.
-#' @param clicksDF A data frame with the two columns, time and cuminc. 
+#' @param clicksDF A data frame with the two columns, time and cuminc.
 #' @param targetTimes A vector of times from the composite KM plot.
 #' @param nAdd Number of times to add to clicksDF.
 #'
@@ -15,7 +17,7 @@
 #' add_clicks(clicksDF, targetTimes = runif(n=14, min=0, max=10), nAdd=5)
 
 add_clicks <- function(clicksDF, targetTimes, nAdd) {
-  
+
   # add the targetTime that is furthest away from existing times in clicksDF
   for (add_it in 1:nAdd) {
     # minimum distance to clicks times
@@ -28,7 +30,7 @@ add_clicks <- function(clicksDF, targetTimes, nAdd) {
     clicksDF <- clicksDF %>% add_row(time=furthestTime, cuminc=clicksDF$cuminc[prevRow]) %>%
       arrange(time)
   }
-  
+
   return(clicksDF)
 }
 
@@ -38,7 +40,7 @@ add_clicks <- function(clicksDF, targetTimes, nAdd) {
 #' we need to remove them from the subdistribution curves. Find the time points
 #' in the subdistribution data that are furthest away from the composite curve times,
 #' remove those times.
-#' @param clicksDF A data frame with the two columns time and cuminc. 
+#' @param clicksDF A data frame with the two columns time and cuminc.
 #' @param targetTimes A vector of times from the composite KM plot.
 #' @param nRemove Number of times to remove from clicksDF.
 #'
@@ -51,17 +53,17 @@ add_clicks <- function(clicksDF, targetTimes, nAdd) {
 #' remove_clicks(clicksDF, targetTimes = runif(n=7, min=0, max=10), nRemove=3)
 
 remove_clicks <- function(clicksDF, targetTimes, nRemove) {
-  
+
   # remove the clicksDF time that is closest to another clicksDF time
   for (remove_it in 1:nRemove) {
     # distance to next time
     distanceToNext <- diff(clicksDF$time)
     removeRow <- order(distanceToNext)[1]
     if (removeRow == 1) {removeRow <- 2}
-    
+
     # remove
     clicksDF <- rbind(clicksDF[1:(removeRow-1), ], clicksDF[(removeRow+1):nrow(clicksDF), ] )
   }
-  
+
   return(clicksDF)
 }

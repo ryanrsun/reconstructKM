@@ -1,4 +1,4 @@
-#' print_cox_outputs.R
+#' Print outputs from Cox regression
 #'
 #' Just a wrapper to get quantities out of a call to coxph()
 #'

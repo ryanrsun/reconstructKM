@@ -2,7 +2,7 @@
 % Please edit documentation in R/print_cox_outputs.R
 \name{print_cox_outputs}
 \alias{print_cox_outputs}
-\title{print_cox_outputs.R}
+\title{Print outputs from Cox regression}
 \usage{
 print_cox_outputs(cox_fit, print_output = TRUE)
 }

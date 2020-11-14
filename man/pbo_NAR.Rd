@@ -4,19 +4,16 @@
 \name{pbo_NAR}
 \alias{pbo_NAR}
 \title{Pembrolizumab example OS NAR table - placebo arm}
-\format{A data frame with 8 rows and 2 variables:
-\describe{
-  \item{time}{event time, months}
-  \item{NAR}{number of subjects at risk}
-  ...
-}}
-\source{
-\url{NEJM. 2018;378(22):2078-2092}
+\format{
+A data frame with 8 rows and 2 variables, time (time in months) and NAR (number still at risk)
 }
 \usage{
-pbo_NAR
+data(pbo_NAR)
 }
 \description{
 A dataset containing the number at risk information for the placebo OS KM curve.
+}
+\references{
+Gandhi et al. NEJM 2018;378(22):2078-2092
 }
 \keyword{datasets}

@@ -2,7 +2,7 @@
 % Please edit documentation in R/CIC_reconstruct.R
 \name{CIC_reconstruct}
 \alias{CIC_reconstruct}
-\title{CIC_reconstruct.R}
+\title{Reconstruct cumulative incidence curves}
 \usage{
 CIC_reconstruct(overallIPD, clicks1, arm, clicks2 = NULL)
 }
@@ -32,11 +32,11 @@ Can also handle the case when the CIC for event 2 is not given.
 Run this separately for each arm.
 }
 \examples{
-data(PFS_TTF_clicks)
-data(PFS_TTF_NAR)
-augTabs <- format_raw_tabs(raw_NAR=PFS_TTF_NAR, raw_surv=PFS_TTF_clicks)
+data(pembro_clicks)
+data(pembro_NAR)
+augTabs <- format_raw_tabs(raw_NAR=pembro_NAR, raw_surv=pembro_clicks)
 reconstruct <- KM_reconstruct(aug_NAR=augTabs$aug_NAR, aug_surv=augTabs$aug_surv)
 IPD <- data.frame(arm=1, time=reconstruct$IPD_time, status=reconstruct$IPD_event)
-clicks1 <- dplyr::mutate(PFS_TTF_clicks, cuminc=1-survival)
+clicks1 <- dplyr::mutate(pembro_clicks, cuminc=1-survival)
 CIC_reconstruct(overallIPD = IPD, clicks1 = clicks1, arm=1, clicks2=NULL)
 }

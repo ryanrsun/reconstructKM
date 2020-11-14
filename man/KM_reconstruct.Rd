@@ -2,7 +2,7 @@
 % Please edit documentation in R/KM_reconstruct.R
 \name{KM_reconstruct}
 \alias{KM_reconstruct}
-\title{KM_reconstruct.R}
+\title{Reconstruct digitized Kaplan-Meier curves and generate invididual patient data}
 \usage{
 KM_reconstruct(aug_NAR, aug_surv)
 }
@@ -20,9 +20,9 @@ Reconstruct individual-level data from augmented survival table and
 augmented NAR table, with augmentation performed by format_raw_tabs().
 }
 \examples{
-data(PFS_TTF_NAR)
-data(PFS_TTF_clicks)
-augTabs <- format_raw_tabs(raw_NAR=PFS_TTF_NAR, raw_surv=PFS_TTF_clicks)
+data(pembro_NAR)
+data(pembro_clicks)
+augTabs <- format_raw_tabs(raw_NAR=pembro_NAR, raw_surv=pembro_clicks)
 KM_reconstruct(aug_NAR=augTabs$aug_NAR, aug_surv=augTabs$aug_surv)
 
 }

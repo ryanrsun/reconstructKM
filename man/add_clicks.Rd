@@ -2,7 +2,7 @@
 % Please edit documentation in R/add_clicks.R
 \name{add_clicks}
 \alias{add_clicks}
-\title{add_clicks.R}
+\title{Add clicks to subdistribution curves for reconstructing CIC}
 \usage{
 add_clicks(clicksDF, targetTimes, nAdd)
 }

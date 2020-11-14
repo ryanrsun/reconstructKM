@@ -2,11 +2,7 @@
 % Please edit documentation in R/nonparam_rmst.R
 \name{nonparam_rmst}
 \alias{nonparam_rmst}
-\title{Non-parametric RMST function that allows for
-the tau (follow-up time) to be arbitrarily large. Uno package
-restricts it to be min(last observed event in either arm).
-Provides estimate, SE, CI for each arm. Provides same for
-difference in arms (and also p-value).}
+\title{Calculate RMST for each arm as well as contrast}
 \usage{
 nonparam_rmst(dat, tau, alpha = 0.05)
 }

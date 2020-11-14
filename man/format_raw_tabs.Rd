@@ -2,7 +2,7 @@
 % Please edit documentation in R/format_raw_tabs.R
 \name{format_raw_tabs}
 \alias{format_raw_tabs}
-\title{format_raw_tabs.R}
+\title{Format raw survival and NAR tables so they are ready for reconstruction algorithm}
 \usage{
 format_raw_tabs(raw_NAR, raw_surv, tau = NULL)
 }
@@ -21,8 +21,8 @@ Augment a raw number at risk table with the necessary information to run
 the reconstruction algorithm.
 }
 \examples{
-data(PFS_TTF_clicks)
-data(PFS_TTF_NAR)
-augTabs <- format_raw_tabs(raw_NAR=PFS_TTF_NAR, raw_surv=PFS_TTF_clicks)
+data(pembro_clicks)
+data(pembro_NAR)
+augTabs <- format_raw_tabs(raw_NAR=pembro_NAR, raw_surv=pembro_clicks)
 
 }

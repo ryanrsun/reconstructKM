@@ -2,8 +2,7 @@
 % Please edit documentation in R/weibull_rmst.R
 \name{weibull_rmst}
 \alias{weibull_rmst}
-\title{RMST for time-to-event data under parametric Weibull fit for data in each
-arm separately. Also can provide CI for RMST estimate and difference in RMST.}
+\title{RMST using Weibull fit}
 \usage{
 weibull_rmst(num_boots = 1000, dat, tau, alpha, find_pval = FALSE, seed = NULL)
 }

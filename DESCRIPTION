@@ -1,9 +1,9 @@
 Package: reconstructKM
 Type: Package
-Title: Reconstruct individual-level data from KM plots published in academic journals
+Title: Reconstruct individual-level data from published KM plots
 Version: 0.3.0
 Authors@R: person("Ryan", "Sun", email = "ryansun.work@gmail.com", role = c("aut", "cre"))
-Description: Functions for reconstructing individual-level data (time, status, arm) from KM curves published in academic journals (e.g. NEJM, JCO, JAMA). This individual-level data can be used for re-analysis, meta-analysis, methodology development, etc. reconstructKM was used to generate the data for commentary such as DOI 10.1056/NEJMc1808567. Please see the vignette for a quickstart guide. 
+Description: Functions for reconstructing individual-level data (time, status, arm) from Kaplan-MEIER curves published in academic journals (e.g. NEJM, JCO, JAMA). This individual-level data can be used for re-analysis, meta-analysis, methodology development, etc. ‘reconstructKM’ was used to generate the data for commentary such as Sun, Rich, & Wei (2018) <doi:10.1056/NEJMc1808567>. Please see the vignette for a quickstart guide. 
 Encoding: UTF-8
 LazyData: true
 Depends: R (>= 2.10)

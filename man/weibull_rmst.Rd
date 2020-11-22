@@ -35,6 +35,6 @@ time <- rexp(100)
 status <- rbinom(n=100, prob=0.5, size=1)
 arm <- c( rep(1, 50), rep(0, 50))
 dat <- data.frame(time=time, status=status, arm=arm)
-weibull_rmst(dat=dat, tau=1, alpha=0.05)
+weibull_rmst(dat=dat, tau=1, alpha=0.05, num_boots=200)
 
 }

@@ -63,12 +63,10 @@ CIC_reconstruct <- function(overallIPD, clicks1, arm, clicks2=NULL) {
   # so it'll have more clicks than either event alone.
   if (nclicks1 < ntimesKM + 1) {
 	  nAdd <- ntimesKM + 1 - nclicks1
-	  cat("Need to add ", nAdd, " time points to clicks1")
 	  # add clcks here
 	  clicks1 <- add_clicks(clicksDF = clicks1, targetTimes = unlist(kmDat$time), nAdd = nAdd)
   } else if (nclicks1 > ntimesKM + 1) {
 	  nRemove <- nclicks1 - ntimesKM - 1
-    cat("Need to remove ", nRemove, " time points to clicks1")
     # or remove clicks here
     clicks1 <- remove_clicks(clicksDF = clicks1, targetTimes = unlist(kmDat$time), nRemove = nRemove)
   }
@@ -78,12 +76,10 @@ CIC_reconstruct <- function(overallIPD, clicks1, arm, clicks2=NULL) {
 	  nclicks2 <- nrow(clicks2)
     if (nclicks2 < ntimesKM + 1) {
       nAdd <- ntimesKM + 1 - nclicks2
-      cat("Need to add ", nAdd, " time points to clicks2")
       # add to clicks2
       clicks2 <- add_clicks(clicksDF = clicks2, targetTimes = unlist(kmDat$time), nAdd = nAdd)
 	  } else if (nclicks2 > ntimesKM + 1) {
       nRemove <- nclicks2 - ntimesKM - 1
-      cat("Need to remove ", nRemove, " time points to clicks2")
       # remove from clicks2
       clicks2 <- remove_clicks(clicksDF = clicks2, targetTimes = unlist(kmDat$time), nRemove = nRemove)
 	  }

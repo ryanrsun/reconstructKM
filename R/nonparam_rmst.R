@@ -32,7 +32,7 @@ nonparam_rmst <- function(dat, tau, alpha = 0.05) {
     }
     uniqueArms <- sort(unique(dat$arm))
     if ( length(uniqueArms) > 2) {
-        print("More than two arms, contrasts will only be between first two numerically sorted arms.")
+        stop("More than two arms, please run this function with only two arms at a time.")
     }
 
     # loop through arms
